@@ -1,0 +1,29 @@
+# Web
+Django
+djangorestframework
+django-cors-headers
+python-dotenv
+django-debug-toolbar
+pytest-django
+
+# Parsing
+requests
+beautifulsoup4
+lxml
+
+# Computer Vision
+numpy
+opencv-python
+pillow
+torch
+torchvision
+ultralytics
+
+# Development Tools
+black
+flake8
+isort
+mypy
+pytest
+pytest-cov
+requests-mock
