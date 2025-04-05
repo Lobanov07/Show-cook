@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    'rest_framework.authtoken',
     "api",
     "recipes",
     "users",
@@ -106,8 +107,8 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+
     ],
 
     'DEFAULT_RENDERER_CLASSES': [
@@ -116,3 +117,5 @@ REST_FRAMEWORK = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'users.User'
