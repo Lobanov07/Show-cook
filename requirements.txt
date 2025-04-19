@@ -10,6 +10,9 @@ pytest-django
 requests
 beautifulsoup4
 lxml
+scrapy 
+scrapy-playwright
+selenium
 
 # Computer Vision
 numpy

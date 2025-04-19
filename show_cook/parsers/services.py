@@ -16,3 +16,9 @@ def save_recipe_to_db(recipe_data):
             RecipeIngredient.objects.create(recipe=recipe, ingredient=ingredient, amount=item["amount"])
 
     return recipe
+
+
+def find_best_price(products):
+    """Возвращает продукт с минимальной ценой"""
+    # Пока просто возвращаем первый элемент
+    return products[0] if products else None
