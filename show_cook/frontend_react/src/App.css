@@ -1,0 +1,17 @@
+.show-cook{
+  background-color: rgba(255, 255, 255, 1.0);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.show-cook .overlap-wrapper{
+  background-image: url(background.svg);
+  
+}
+.show-cook .overlap {
+  height: 1080px;
+  position: relative;
+  width: 1920px;
+  
+}
