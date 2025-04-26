@@ -1,0 +1,81 @@
+.text {
+    font-weight: bold;
+    font-size: 18px;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.tomyam {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-left: 300px;
+    margin-top: 100px;
+    
+}
+
+
+.tomyam img {
+    width: 395px;
+    height: 187px;
+    margin-top: 100px;
+}
+
+.tomyam span {
+    font-weight: bold;
+    font-style: italic;
+    font-size: 48px;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: 'TextMajor', sans-serif;
+}
+.style_button {
+    margin-top: 80px;
+}
+@font-face {
+    font-family: 'TextMajor';
+    src: url('../fonts/mvboli.ttf') format('truetype');
+    font-weight: normal;
+  }
+
+#anima1 {
+    display: flex;
+    justify-content: center;
+    width:280px;
+    position:absolute;
+}
+    
+#anima1 span {
+    position:relative;
+    bottom:-120px;
+    margin: 100px 2px 50px;
+    min-width:8px;
+    height:120px;
+    background:rgb(255, 255, 255);
+    border-radius:50%;
+    animation: animate 3s linear infinite;
+    opacity: 0;
+    filter: blur(8px);
+    animation-delay: calc(var(--i) * 1s);
+}
+    
+@keyframes animate {
+    0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0;
+    }
+    15% {
+    opacity: 1;
+    }
+    50% {
+    transform: translateY(-75px) scaleX(10);
+    }
+    95% {
+    opacity: 0;
+    }
+    100% {
+    transform: translateY(-150px) scaleX(10);
+    }
+}
