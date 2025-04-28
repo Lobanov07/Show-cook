@@ -1,5 +1,5 @@
 .sidebar {
-  width: 450px;
+  width: 500px;
   height: 700px;
   background: rgba(61, 59, 112, 1);
   color: white;
@@ -23,20 +23,25 @@
   text-align: center;
 }
 
-.menu a {
+.menu button {
   color: white;
   text-decoration: none;
   margin: 15px 0;
+  margin-right: 50px;
   font-size: 34px;
   padding: 5px;
   transition: background 0.3s, color 0.3s;
   border-radius: 10px;
   font-family: 'MainFont', sans-serif;
   font-style: 128px;
+  background: transparent;
+  border: none !important;
+  transform: scale(1.05);
 }
 
-.menu a:hover {
+.menu button:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
 @font-face {

@@ -1,13 +1,16 @@
 import '../css/Sidebar.css'
 
-export default function Main_menu() {
+export default function Main_menu({active, onChange}) {
     return (
         <>
         <aside className="sidebar">
       <ul className="menu">
-        <a>ИСТОРИЯ ОПЕРАЦИЙ</a>
-        <a>ИЗБРАННЫЕ РЕЦЕПТЫ</a>
-        <a>О КОМАНДЕ</a>
+        <button isActive={active === 'History'}
+                onClick={() => onChange('History')}>ИСТОРИЯ ОПЕРАЦИЙ</button>
+        <button isActive={active === 'Features'}
+                onClick={() => onChange('Features')}>ИЗБРАННЫЕ РЕЦЕПТЫ</button>
+        <button isActive={active === 'Team'}
+                onClick={() => onChange('Team')}>О КОМАНДЕ</button>
       </ul>
     </aside>
     </>

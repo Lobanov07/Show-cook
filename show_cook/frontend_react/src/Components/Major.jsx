@@ -1,6 +1,5 @@
 import '../css/Major.css'
 import tomyam from '../img/tomyam.png'
-import ToScan from './Scan_button';
 
     
 export default function Major() {
@@ -29,9 +28,6 @@ export default function Major() {
             ))}
             </div>
             <img src={tomyam} alt="Tom-yam" />
-            <div className='style_button'>
-                <ToScan />
-            </div>
         </div>
         </>
     );

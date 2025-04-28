@@ -22,3 +22,8 @@ body {
   display: flex;
   flex-direction: row;
 }
+
+.style_button {
+  margin-top: 80px;
+  margin-left: 300px;
+}
