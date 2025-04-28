@@ -17,6 +17,8 @@ django.setup()
 
 BOT_NAME = "prices_parser"
 
+# TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
+
 SPIDER_MODULES = ["prices_parser.spiders"]
 NEWSPIDER_MODULE = "prices_parser.spiders"
 DOWNLOAD_DELAY = 1
