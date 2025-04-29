@@ -8,8 +8,11 @@ import AutorButton from './Components/AutorButton';
 import Team from './Components/Creators';
 import ToScan from './Components/Scan_button';
 import Scanning from './Components/Scanning';
+import Recipes from './Components/Recipes';
+import History from './Components/History';
+import Account from './Components/Account';
 
-export default function App(active, onChange) {
+export default function App() {
   const [Tab, setTab] = useState('Main')
   return (
     <>
@@ -38,13 +41,13 @@ export default function App(active, onChange) {
         {Tab === 'History' && (
           <>
             <Sidebar active={Tab} onChange={(current => setTab(current))}/>
-            <Team />
+            <History />
           </>
         )}
         {Tab === 'Features' && (
           <>
             <Sidebar active={Tab} onChange={(current => setTab(current))}/>
-            <Team />
+            <Recipes />
           </>
         )}
         {Tab === 'Team' && (
@@ -57,6 +60,12 @@ export default function App(active, onChange) {
           <>
             <Sidebar active={Tab} onChange={(current => setTab(current))}/>
             <Scanning />
+          </>
+        )}
+        {Tab === 'Account' && (
+          <>
+            <Sidebar active={Tab} onChange={(current => setTab(current))}/>
+            <Account active={Tab} onChange={(current => setTab(current))}/>
           </>
         )}
         </div>

@@ -11,6 +11,8 @@ export default function Main_menu({active, onChange}) {
                 onClick={() => onChange('Features')}>ИЗБРАННЫЕ РЕЦЕПТЫ</button>
         <button isActive={active === 'Team'}
                 onClick={() => onChange('Team')}>О КОМАНДЕ</button>
+        <button isActive={active === 'Account'}
+                onClick={() => onChange('Account')}>АККАУНТ</button>
       </ul>
     </aside>
     </>
