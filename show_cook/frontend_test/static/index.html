@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рецептов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .recipe {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Найти рецепты по ингредиентам</h1>
+
+        <form id="recipeForm">
+            <label for="image">Загрузите изображение:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            
+            <label for="products">Или введите продукты (через запятую):</label>
+            <input type="text" id="products" name="products" placeholder="яблоко, молоко, хлеб">
+            
+            <button type="submit">Найти рецепты</button>
+        </form>
+
+        <div class="result" id="result">
+            <!-- Результаты будут отображаться здесь -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('recipeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const image = document.getElementById('image').files[0];
+            const products = document.getElementById('products').value;
+
+            if (image) {
+                formData.append('image', image);
+            }
+
+            if (products) {
+                formData.append('products', products.split(',').map(p => p.trim()));
+            }
+
+            const response = await fetch('http://127.0.0.1:8000/api/recipes/by-products-with-price/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';  // Очистить предыдущие результаты
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    data.forEach(recipe => {
+                        const recipeDiv = document.createElement('div');
+                        recipeDiv.classList.add('recipe');
+                        recipeDiv.innerHTML = `
+                            <h3>${recipe.recipe.name}</h3>
+                            <p>Цена: ${recipe.price ? recipe.price : 'Не найдена'}</p>
+                        `;
+                        resultDiv.appendChild(recipeDiv);
+                    });
+                }
+            } else {
+                resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.statusText}</p>`;
+            }
+        });
+    </script>
+
+</body>
+</html>

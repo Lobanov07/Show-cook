@@ -8,6 +8,9 @@ from rest_framework.views import APIView
 import os
 import subprocess
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+
+
 
 from asgiref.sync import sync_to_async
 import requests
@@ -51,16 +54,41 @@ class RecipeByIngredientsView(generics.ListAPIView):
     """
     serializer_class = RecipeSerializer
 
-    schema = RecipeByIngredientsSchema()
-
     def get_queryset(self):
         ingredient_names = self.request.GET.get('ingredients', '').split(',')
-        ingredients = Ingredient.objects.filter(name__in=ingredient_names)
-
-        if not ingredients:
+        ingredient_names = [name.strip() for name in ingredient_names if name.strip()] 
+        if not ingredient_names:
             return Recipe.objects.none()
 
-        return Recipe.objects.filter(ingredients__in=ingredients).distinct()[:10]
+        queryset = Recipe.objects.all()
+
+
+        for name in ingredient_names:
+
+            ingredients = Ingredient.objects.filter(name__icontains=name)
+            if not ingredients:
+                return Recipe.objects.none()  
+            queryset = queryset.filter(ingredients__in=ingredients)
+
+        return queryset.distinct()[:10]
+
+# class RecipeByIngredientsView(generics.ListAPIView):
+#     """
+#     Класс для получения рецептов, содержащих указанные ингредиенты.
+#     Пример запроса: GET /api/recipes/by-ingredients/?ingredients=яблоко,молоко
+#     """
+#     serializer_class = RecipeSerializer
+
+#     schema = RecipeByIngredientsSchema()
+
+#     def get_queryset(self):
+#         ingredient_names = self.request.GET.get('ingredients', '').split(',')
+#         ingredients = Ingredient.objects.filter(name__in=ingredient_names)
+
+#         if not ingredients:
+#             return Recipe.objects.none()
+
+#         return Recipe.objects.filter(ingredients__in=ingredients).distinct()[:10]
 
 
 class RecipesByProductsWithPriceView(APIView):
