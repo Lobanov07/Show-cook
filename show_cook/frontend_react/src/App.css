@@ -1,0 +1,29 @@
+.show-cook body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: linear-gradient(
+    135deg,
+     #1A89D9 0%,
+     #B6A1E0 54%,
+    #9826E3 100%);
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.flexible_show{
+  display: flex;
+  flex-direction: row;
+}
+
+
+.head_flex{
+  display: flex;
+  flex-direction: row;
+}
+
+.style_button {
+  margin-top: 80px;
+  margin-left: 300px;
+}
