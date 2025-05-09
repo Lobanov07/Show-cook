@@ -15,15 +15,25 @@ body {
 .flexible_show{
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1rem;
 }
 
 
 .head_flex{
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .style_button {
-  margin-top: 80px;
-  margin-left: 300px;
+  margin-left: 3vh;
+  margin-top: 5vh;
+  padding: 0.8em 1.6em;
 }
+

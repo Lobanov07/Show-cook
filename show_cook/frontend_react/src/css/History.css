@@ -1,6 +1,7 @@
 .flexible{
     display: flex;
     flex-direction: column;
+    position: absolute;
   }
 
 .bord-title {
@@ -19,7 +20,8 @@
     text-align: center;
     width: 900px;
     height: 520px;
-    margin-left: 200px;
+    margin-left: 500px;
+    margin-top: 550px;
     overflow-y:scroll;
   }
 .history-section::-webkit-scrollbar {
