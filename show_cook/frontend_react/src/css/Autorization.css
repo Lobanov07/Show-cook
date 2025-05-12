@@ -12,9 +12,12 @@
     border-radius: 20px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
     flex-direction: column;
     align-items: center;
-    margin-left: 600px;
+    margin-left: 10vh;
   }
   
   .login-title {

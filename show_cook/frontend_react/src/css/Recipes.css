@@ -1,6 +1,8 @@
 .flexible{
     display: flex;
     flex-direction: column;
+    position: absolute;
+    z-index: -1;
   }
 
 .border-title {
@@ -19,7 +21,8 @@
     text-align: center;
     width: 900px;
     height: 520px;
-    margin-left: 200px;
+    margin-left: 500px;
+    margin-top: 550px;
     overflow-y:scroll;
   }
 
