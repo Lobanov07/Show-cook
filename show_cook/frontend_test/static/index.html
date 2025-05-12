@@ -13,7 +13,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        input[type="file"], input[type="text"] {
+        input[type="text"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -43,20 +43,13 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Найти рецепты по ингредиентам</h1>
-
         <form id="recipeForm">
-            <label for="image">Загрузите изображение:</label>
-            <input type="file" id="image" name="image" accept="image/*">
-            
-            <label for="products">Или введите продукты (через запятую):</label>
-            <input type="text" id="products" name="products" placeholder="яблоко, молоко, хлеб">
-            
+            <label for="products">Введите продукты (через запятую):</label>
+            <input type="text" id="products" name="products" placeholder="Картофель, Сыр">
             <button type="submit">Найти рецепты</button>
         </form>
-
         <div class="result" id="result">
             <!-- Результаты будут отображаться здесь -->
         </div>
@@ -66,46 +59,60 @@
         document.getElementById('recipeForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const formData = new FormData();
-            const image = document.getElementById('image').files[0];
-            const products = document.getElementById('products').value;
-
-            if (image) {
-                formData.append('image', image);
-            }
-
-            if (products) {
-                formData.append('products', products.split(',').map(p => p.trim()));
-            }
-
-            const response = await fetch('http://127.0.0.1:8000/api/recipes/by-products-with-price/', {
-                method: 'POST',
-                body: formData
-            });
-
+            const productsInput = document.getElementById('products').value;
             const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '';  // Очистить предыдущие результаты
+            resultDiv.innerHTML = ''; // Очистить предыдущие результаты
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.error) {
-                    resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+            // Преобразуем введённые продукты в массив
+            const products = productsInput.split(',').map(p => p.trim()).filter(p => p);
+
+            // Логируем данные перед отправкой
+            console.log("Products: ", products);
+
+            if (products.length === 0) {
+                resultDiv.innerHTML = `<p style="color: red;">Пожалуйста, введите продукты.</p>`;
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/api/recipes-with-prices/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ products })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Server response:', data); // Логируем ответ для отладки
+
+                    if (data.error) {
+                        console.error('Server error:', data.error);
+                        resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                    } else if (!Array.isArray(data)) {
+                        resultDiv.innerHTML = `<p style="color: red;">Ошибка: сервер вернул некорректные данные</p>`;
+                    } else {
+                        data.forEach(recipe => {
+                            const recipeDiv = document.createElement('div');
+                            recipeDiv.classList.add('recipe');
+                            recipeDiv.innerHTML = `
+                                <h3>${recipe.recipe.title}</h3>
+                                <p>Цена: ${recipe.price ? recipe.price.toFixed(2) : 'Не найдена'}</p>
+                                <p>${recipe.recipe.description}</p>
+                                <a href="${recipe.recipe.link}" target="_blank">Подробнее</a>
+                            `;
+                            resultDiv.appendChild(recipeDiv);
+                        });
+                    }
                 } else {
-                    data.forEach(recipe => {
-                        const recipeDiv = document.createElement('div');
-                        recipeDiv.classList.add('recipe');
-                        recipeDiv.innerHTML = `
-                            <h3>${recipe.recipe.name}</h3>
-                            <p>Цена: ${recipe.price ? recipe.price : 'Не найдена'}</p>
-                        `;
-                        resultDiv.appendChild(recipeDiv);
-                    });
+                    resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.statusText}</p>`;
                 }
-            } else {
-                resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.statusText}</p>`;
+            } catch (e) {
+                console.error('Fetch error:', e);
+                resultDiv.innerHTML = `<p style="color: red;">Ошибка при обработке запроса: ${e.message}</p>`;
             }
         });
     </script>
-
 </body>
 </html>

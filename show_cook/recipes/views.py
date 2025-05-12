@@ -15,11 +15,7 @@ from django.db.models import Q
 from asgiref.sync import sync_to_async
 import requests
 from django.core.management import call_command
-from scrapy.cmdline import execute
 
-from parsers.management.commands import parse_vkusvill_prices
-
-# from .vision import recognize_products_from_image
 
 def recognize_products_from_image():
     pass
@@ -37,6 +33,7 @@ class RecipeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
     Класс для получения, обновления и удаления одного рецепта по ID.
     """
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     lookup_field = 'id'
@@ -52,6 +49,7 @@ class RecipeByIngredientsView(generics.ListAPIView):
     Класс для получения рецептов, содержащих указанные ингредиенты.
     Пример запроса: GET /api/recipes/by-ingredients/?ingredients=яблоко,молоко
     """
+
     serializer_class = RecipeSerializer
 
     def get_queryset(self):
@@ -70,129 +68,202 @@ class RecipeByIngredientsView(generics.ListAPIView):
                 return Recipe.objects.none()  
             queryset = queryset.filter(ingredients__in=ingredients)
 
-        return queryset.distinct()[:10]
+        return queryset.distinct()#[:10]
+    
+    def get_operation_id(self, path, method):
+        return 'listRecipesByIngredients'
 
-# class RecipeByIngredientsView(generics.ListAPIView):
-#     """
-#     Класс для получения рецептов, содержащих указанные ингредиенты.
-#     Пример запроса: GET /api/recipes/by-ingredients/?ingredients=яблоко,молоко
-#     """
-#     serializer_class = RecipeSerializer
 
-#     schema = RecipeByIngredientsSchema()
 
-#     def get_queryset(self):
-#         ingredient_names = self.request.GET.get('ingredients', '').split(',')
-#         ingredients = Ingredient.objects.filter(name__in=ingredient_names)
 
-#         if not ingredients:
-#             return Recipe.objects.none()
 
-#         return Recipe.objects.filter(ingredients__in=ingredients).distinct()[:10]
+import inspect
+from collections import namedtuple
+import re
+import requests
+
+from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.schemas import AutoSchema
+
+from .models import ProductPrice
+from .tasks import crawl_price_for
+
+ArgSpec = namedtuple('ArgSpec', ['args', 'varargs', 'varkw', 'defaults'])
+def _getargspec(func):
+    full = inspect.getfullargspec(func)
+    return ArgSpec(full.args, full.varargs, full.varkw, full.defaults)
+inspect.getargspec = _getargspec
+
+import pymorphy2
+morph = pymorphy2.MorphAnalyzer()
+
+def get_lemmas(text: str) -> set[str]:
+    tokens = re.findall(r'\w+', text.lower(), flags=re.UNICODE)
+    return { morph.parse(tok)[0].normal_form for tok in tokens }
 
 
 class RecipesByProductsWithPriceView(APIView):
+    """
+    POST /api/recipes-with-prices/
+    Принимает JSON { products: [...], sort_by: "price"|"relevance" }
+    или multipart/form-data с image + sort_by
+    Отдаёт список рецептов с ценой недостающих продуктов и релевантностью.
+    """
+    schema = AutoSchema()
+
     def post(self, request):
-        products = []
-
+        # 1) Получаем список входных продуктов
         image = request.FILES.get('image')
-        if image:
-            products = recognize_products_from_image(image)
-        else:
-            products = request.data.get('products', [])
-
-        if not products:
-            return Response({'error': 'No products provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-        products = [p.strip().capitalize() for p in products if p.strip()]
-
-        ingredients_param = ",".join(products)
-
-        url = f"http://127.0.0.1:8000/api/recipes/by-ingredients/?ingredients={ingredients_param}"
-
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            return Response({'error': f"Error fetching recipes: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        matching_recipes = response.json()
-
-        if not matching_recipes:
-            return Response({'error': 'No matching recipes found'}, status=status.HTTP_404_NOT_FOUND)
-
-        recipes_with_prices = []
-        for recipe in matching_recipes:
-
-            total_price = self.calculate_recipe_price(recipe)  # Ваша логика расчета цены
-            recipes_with_prices.append((recipe, total_price))
-            print(total_price)
-
-        recipes_with_prices.sort(key=lambda x: x[1] if x[1] is not None else float('inf'))
-
-        result = [
-            {
-                'recipe': recipe,
-                'price': price
-            }
-            for recipe, price in recipes_with_prices
+        raw = (recognize_products_from_image(image)
+               if image else request.data.get('products', []))
+        products = [
+            p.strip().capitalize()
+            for p in raw
+            if isinstance(p, str) and p.strip()
         ]
+        if not products:
+            return Response({'error': 'No products provided'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(result, status=status.HTTP_200_OK)
+        # 2) Собираем леммы входных продуктов
+        input_lemmas = set()
+        for p in products:
+            input_lemmas |= get_lemmas(p)
 
-    def calculate_recipe_price(self, recipe_data):
-        total_price = 0
-        for recipe_ingredient in recipe_data['ingredients']:
-            print(recipe_ingredient)
-            ingredient_name = recipe_ingredient['ingredient']
-            price = self.get_price_for_product(ingredient_name)
-            if price is not None:
-                total_price += price
-        return total_price
+        # 3) Читаем параметр сортировки
+        sort_by = request.data.get('sort_by', 'price')
+        if sort_by not in ('price', 'relevance'):
+            return Response({'error': 'Invalid sort_by'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-    def set_price(self, product_name):
-        """Запускает парсер Scrapy для поиска цен по продукту в фоновом процессе."""
+        # 4) Получаем список рецептов по ингредиентам
         try:
-            print(f"Ищем цены на: {product_name}")
-
-            project_dir = "D:/dev/Show-cook/show_cook/parsers/prices_parser"
-
-            if not os.path.exists(project_dir):
-                raise FileNotFoundError(f"Директория не найдена: {project_dir}")
-
-            os.chdir(os.path.abspath(project_dir))
-
-            subprocess.Popen(["scrapy", "crawl", "vkusvill", "-a", f"query={product_name}"])
-
-            print(f"Парсер запущен для {product_name}")
+            resp = requests.get(
+                'http://127.0.0.1:8000/api/recipes/by-ingredients/',
+                params={'ingredients': ",".join(products)}
+            )
+            resp.raise_for_status()
+            data = resp.json()
         except Exception as e:
-            print(f"Ошибка при запуске парсера для {product_name}: {e}")
-            raise
+            return Response({'error': f"Error fetching recipes: {e}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_price_for_product(self, product_name):
-        """Ищет цену продукта в базе данных. Если не находит — запускает парсер."""
+        # Поддержка пагинации DRF
+        if isinstance(data, dict) and 'results' in data:
+            matching = data['results']
+        elif isinstance(data, list):
+            matching = data
+        else:
+            return Response(
+                {'error': 'Unexpected data format from by-ingredients'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        if not matching:
+            return Response({'error': 'No matching recipes found'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # 5) Составляем список всех недостающих ингредиентов и метаданные по рецептам
+        all_missing = set()
+        metas = []
+        for rec in matching:
+            ing_list = rec.get('ingredients') or []
+            if not isinstance(ing_list, list):
+                ing_list = [ing_list]
+
+            names = []
+            for ing in ing_list:
+                if isinstance(ing, dict):
+                    name = ing.get('ingredient') or ing.get('name') or ''
+                else:
+                    name = str(ing)
+                name = name.strip()
+                if name:
+                    names.append(name)
+
+            matched = [n for n in names if get_lemmas(n) & input_lemmas]
+            missing = [n for n in names if n not in matched]
+
+            all_missing |= set(missing)
+            metas.append({
+                'recipe': rec,
+                'matched': matched,
+                'missing': missing,
+                'total': len(names),
+            })
+
+        # 6) Пакетно тянем из БД цены тех, что уже есть
+        price_map = {}
+        for name in all_missing:
+            qp = (
+                ProductPrice.objects
+                .filter(name__icontains=name)
+                .order_by('price')
+                .first()
+            )
+            if qp:
+                price_map[name] = qp.price
+
+        # 7) Запускаем парсер для тех, у кого не нашлось цены в БД
+        for name in all_missing:
+            has_price = ProductPrice.objects.filter(name__icontains=name).exists()
+            if not has_price:
+                try:
+                    crawl_price_for.delay(name)
+                except Exception as e:
+                    print(f"[Warning] Cannot enqueue parser for '{name}': {e}")
+                    try:
+                        self.set_price(name)
+                    except Exception as ie:
+                        print(f"[Error] Local parser failed for '{name}': {ie}")
+
+        output = []
+        for m in metas:
+            total_price = sum(price_map.get(n, 0) for n in m['missing'])
+            relevance = (len(m['matched']) / m['total'] * 100) if m['total'] else 0
+            output.append({
+                'recipe': m['recipe'],
+                'price': round(total_price, 2),
+                'relevance': round(relevance, 1),
+            })
+
+        if sort_by == 'price':
+            output.sort(key=lambda x: x['price'])
+        else:
+            output.sort(key=lambda x: x['relevance'], reverse=True)
+
+        return Response(output, status=status.HTTP_200_OK)
+
+    def set_price(self, product_name: str):
+        """
+        Локальный запуск Scrapy-парсера для обновления цены продукта.
+        """
+        import os, subprocess
+        project_dir = "D:/dev/Show-cook/show_cook/parsers/prices_parser"
+        if not os.path.isdir(project_dir):
+            raise FileNotFoundError(f"Dir not found: {project_dir}")
+        os.chdir(project_dir)
+        subprocess.Popen([
+            "scrapy", "crawl", "vkusvill", "-a", f"query={product_name}"
+        ])
+
+    def get_price_for_product(self, product_name: str) -> float | None:
+        """Пытаемся взять цену из БД, иначе запускаем парсер."""
         try:
-
-            product_price = ProductPrice.objects.filter(
+            qp = ProductPrice.objects.filter(
                 name__icontains=product_name
             ).order_by('price').first()
+            if qp:
+                return qp.price
 
-            if product_price:
-                return product_price.price
-            else:
-                print(f"Цена не найдена для {product_name}. Запускаем парсер.")
-
-                self.set_price(product_name=product_name)
-
-                product_price_list = list(ProductPrice.objects.filter(
-                    name__icontains=product_name
-                ).order_by('price'))
-
-                if product_price_list:
-                    return product_price_list[0].price
-                else:
-                    print(f"Не удалось найти цену для {product_name} после парсинга.")
-                    return None
-        except Exception as e:
-            print(f"Ошибка при получении цены для продукта {product_name}: {e}")
-            return None
+            self.set_price(product_name)
+            next_qs = ProductPrice.objects.filter(
+                name__icontains=product_name
+            ).order_by('price')
+            if next_qs.exists():
+                return next_qs.first().price
+        except Exception:
+            pass
+        return None

@@ -13,7 +13,9 @@
             margin: 0 auto;
             padding: 20px;
         }
-        input[type="text"] {
+        input[type="file"],
+        input[type="text"],
+        select {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -40,16 +42,33 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+        .recipe h3 {
+            margin: 0 0 5px;
+        }
+        .recipe p {
+            margin: 3px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Найти рецепты по ингредиентам</h1>
         <form id="recipeForm">
-            <label for="products">Введите продукты (через запятую):</label>
+            <label for="image">Загрузите изображение:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            
+            <label for="products">Или введите продукты (через запятую):</label>
             <input type="text" id="products" name="products" placeholder="Картофель, Сыр">
+
+            <label for="sort">Сортировать по:</label>
+            <select id="sort" name="sort_by">
+                <option value="price">Цене недостающих продуктов</option>
+                <option value="relevance">Релевантности</option>
+            </select>
+
             <button type="submit">Найти рецепты</button>
         </form>
+
         <div class="result" id="result">
             <!-- Результаты будут отображаться здесь -->
         </div>
@@ -59,54 +78,75 @@
         document.getElementById('recipeForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
+            const imageFile = document.getElementById('image').files[0];
             const productsInput = document.getElementById('products').value;
+            const sortBy = document.getElementById('sort').value;
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = ''; // Очистить предыдущие результаты
 
-            // Преобразуем введённые продукты в массив
-            const products = productsInput.split(',').map(p => p.trim()).filter(p => p);
+            let fetchOptions;
 
-            // Логируем данные перед отправкой
-            console.log("Products: ", products);
+            if (imageFile) {
+                // Если загружено фото, отправляем multipart/form-data
+                const formData = new FormData();
+                formData.append('image', imageFile);
+                formData.append('sort_by', sortBy);
+                fetchOptions = {
+                    method: 'POST',
+                    body: formData
+                };
+            } else {
+                // Иначе — только текстовый ввод продуктов
+                const products = productsInput
+                    .split(',')
+                    .map(p => p.trim())
+                    .filter(p => p);
 
-            if (products.length === 0) {
-                resultDiv.innerHTML = `<p style="color: red;">Пожалуйста, введите продукты.</p>`;
-                return;
-            }
+                if (products.length === 0) {
+                    resultDiv.innerHTML = `<p style="color: red;">Пожалуйста, введите продукты или загрузите фото.</p>`;
+                    return;
+                }
 
-            try {
-                const response = await fetch('http://localhost:8000/api/recipes-with-prices/', {
+                fetchOptions = {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ products })
-                });
+                    body: JSON.stringify({
+                        products: products,
+                        sort_by: sortBy
+                    })
+                };
+            }
 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Server response:', data); // Логируем ответ для отладки
+            try {
+                const response = await fetch('http://localhost:8000/api/recipes-with-prices/', fetchOptions);
 
-                    if (data.error) {
-                        console.error('Server error:', data.error);
-                        resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
-                    } else if (!Array.isArray(data)) {
-                        resultDiv.innerHTML = `<p style="color: red;">Ошибка: сервер вернул некорректные данные</p>`;
-                    } else {
-                        data.forEach(recipe => {
-                            const recipeDiv = document.createElement('div');
-                            recipeDiv.classList.add('recipe');
-                            recipeDiv.innerHTML = `
-                                <h3>${recipe.recipe.title}</h3>
-                                <p>Цена: ${recipe.price ? recipe.price.toFixed(2) : 'Не найдена'}</p>
-                                <p>${recipe.recipe.description}</p>
-                                <a href="${recipe.recipe.link}" target="_blank">Подробнее</a>
-                            `;
-                            resultDiv.appendChild(recipeDiv);
-                        });
-                    }
+                if (!response.ok) {
+                    resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.status} ${response.statusText}</p>`;
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else if (!Array.isArray(data) || data.length === 0) {
+                    resultDiv.innerHTML = `<p>Рецепты не найдены.</p>`;
                 } else {
-                    resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.statusText}</p>`;
+                    data.forEach(item => {
+                        const { recipe, price, relevance } = item;
+                        const recipeDiv = document.createElement('div');
+                        recipeDiv.classList.add('recipe');
+                        recipeDiv.innerHTML = `
+                            <h3>${recipe.title || recipe.name}</h3>
+                            <p>Цена недостающих продуктов: ${price != null ? price.toFixed(2) + ' ₽' : 'Не найдена'}</p>
+                            <p>Релевантность: ${relevance != null ? relevance.toFixed(1) + '%' : '—'}</p>
+                            ${recipe.description ? `<p>${recipe.description}</p>` : ''}
+                            ${recipe.link ? `<p><a href="${recipe.link}" target="_blank">Подробнее</a></p>` : ''}
+                        `;
+                        resultDiv.appendChild(recipeDiv);
+                    });
                 }
             } catch (e) {
                 console.error('Fetch error:', e);
