@@ -1,12 +1,10 @@
 import '../css/Account.css'
 import { useState } from 'react';
-import EditAccount from './EditAccount';
 
 export default function Account({active, onChange}) {
-    const [Edit, setEdit] = useState('')
+    const [Edit, setEdit] = useState('account')
     return (
         <>
-        {Edit === '' && (
       <div className="user-profile">
         <div className="avatar-section">
           <div className="avatar"></div>
@@ -23,13 +21,6 @@ export default function Account({active, onChange}) {
           Количество сканирований за 30 дней: <span className="highlight">6</span>
         </div>
       </div>
-      
-    )}
-    {Edit === 'edit_info' && (
-        <>
-        <EditAccount />
-        </>
-    )}
     </>
     );
   };
