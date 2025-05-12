@@ -16,8 +16,6 @@ DEBUG = (False if os.getenv('DEBUG_MODE') == 'False' else True)
 ALLOWED_HOSTS = ["*"]
 
 
-# Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -25,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "rest_framework",
     'rest_framework.authtoken',
     "api",
@@ -41,6 +40,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = "show_cook.urls"
@@ -48,7 +55,7 @@ ROOT_URLCONF = "show_cook.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "teamplates"],
+        'DIRS': [BASE_DIR / 'frontend_test' / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -60,6 +67,8 @@ TEMPLATES = [
         },
     },
 ]
+
+print(os.path.abspath(BASE_DIR / "frontend_test" / "templates"))
 
 WSGI_APPLICATION = "show_cook.wsgi.application"
 
@@ -98,6 +107,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'collected_static'
 
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend_test/static',
+]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -113,7 +127,11 @@ REST_FRAMEWORK = {
 
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-    ]
+    ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+
+    'PAGE_SIZE': 10,
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

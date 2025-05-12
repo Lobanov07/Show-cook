@@ -13,6 +13,7 @@ lxml
 scrapy 
 scrapy-playwright
 selenium
+celery
 
 # Computer Vision
 numpy
@@ -30,3 +31,4 @@ mypy
 pytest
 pytest-cov
 requests-mock
+pymorphy2
