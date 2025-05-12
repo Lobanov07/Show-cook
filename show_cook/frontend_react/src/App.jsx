@@ -2,7 +2,7 @@ import './App.css';
 import Sidebar from './Components/Sidebar'
 import Header from './Components/Header'
 import Major from './Components/Major';
-import { useState } from 'react';
+import { Component, useState } from 'react';
 import Autorize from './Components/Autorization';
 import AutorButton from './Components/AutorButton';
 import Team from './Components/Creators';
@@ -14,6 +14,7 @@ import Account from './Components/Account';
 
 export default function App() {
   const [Tab, setTab] = useState('Main')
+  
   return (
     <>
       <div className="show-cook">

@@ -1,6 +1,8 @@
 .flexible{
     display: flex;
     flex-direction: column;
+    position: absolute;
+    z-index: -1;
   }
 
 .border-title {
