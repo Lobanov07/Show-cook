@@ -43,7 +43,7 @@ input[type="file"] {
   font-family: "MainFont", sans-serif;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
   box-shadow: 0 5px 15px 0 rgb(65, 5, 230);
   transition: 0.5s;
