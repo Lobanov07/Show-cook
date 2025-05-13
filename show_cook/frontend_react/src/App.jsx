@@ -2,7 +2,7 @@ import './App.css';
 import Sidebar from './Components/Sidebar'
 import Header from './Components/Header'
 import Major from './Components/Major';
-import { useState } from 'react';
+import {useState } from 'react';
 import Autorize from './Components/Autorization';
 import AutorButton from './Components/AutorButton';
 import Team from './Components/Creators';
@@ -11,9 +11,11 @@ import Scanning from './Components/Scanning';
 import Recipes from './Components/Recipes';
 import History from './Components/History';
 import Account from './Components/Account';
+import EditAccount from './Components/EditAccount';
 
 export default function App() {
   const [Tab, setTab] = useState('Main')
+  
   return (
     <>
       <div className="show-cook">
@@ -66,6 +68,12 @@ export default function App() {
           <>
             <Sidebar active={Tab} onChange={(current => setTab(current))}/>
             <Account active={Tab} onChange={(current => setTab(current))}/>
+          </>
+        )}
+        {Tab === 'edit_info' && (
+          <>
+            <Sidebar active={Tab} onChange={(current => setTab(current))}/>
+            <EditAccount />
           </>
         )}
         </div>

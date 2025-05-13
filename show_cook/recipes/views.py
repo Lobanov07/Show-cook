@@ -265,4 +265,5 @@ class RecipesByProductsWithPriceView(APIView):
         else:
             output.sort(key=lambda x: x['relevance'], reverse=True)
 
+
         return paginator.get_paginated_response(output)
