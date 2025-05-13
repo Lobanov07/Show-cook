@@ -138,3 +138,6 @@ REST_FRAMEWORK = {
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'users.User'
+
+
+YOLO_MODEL_PATH = r"D:\dev\Show-cook\cv\best.pt"

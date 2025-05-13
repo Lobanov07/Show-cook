@@ -34,8 +34,71 @@ from rest_framework.schemas import AutoSchema
 from .models import ProductPrice
 from .tasks import crawl_price_for
 
-def recognize_products_from_image():
-    pass
+import os
+import logging
+import numpy as np
+import cv2
+from ultralytics import YOLO
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+# Пусть к модели берётся из настроек, или fallback на None
+MODEL_PATH = getattr(settings, 'YOLO_MODEL_PATH', None)
+_model = None
+
+# Инициализация модели при первом вызове
+def _load_model():
+    global _model
+    if _model is not None:
+        return
+    if not MODEL_PATH or not os.path.isfile(MODEL_PATH):
+        logger.error(f"YOLO model file not found: {MODEL_PATH}")
+        _model = None
+        return
+    try:
+        _model = YOLO(MODEL_PATH)
+        logger.info(f"YOLO model loaded from {MODEL_PATH}")
+    except Exception as e:
+        logger.exception(f"Failed to load YOLO model: {e}")
+        _model = None
+
+
+def recognize_products_from_image(image_file) -> list[str]:
+    """
+    Распознаёт продукты на изображении с помощью модели YOLOv8.
+    Возвращает список уникальных меток.
+    Если модель не загружена или файл некорректен — возвращает пустой список.
+    """
+    _load_model()
+    if _model is None:
+        return []
+
+    try:
+        # Читаем байты изображения
+        image_file.seek(0)
+        img_bytes = image_file.read()
+        arr = np.frombuffer(img_bytes, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if img is None:
+            logger.warning("Failed to decode image for recognition")
+            return []
+
+        # Инференс
+        results = _model(img)
+        detected = set()
+        for res in results:
+            for box in res.boxes:
+                cls_id = int(box.cls[0])
+                name = res.names.get(cls_id)
+                if name:
+                    detected.add(name)
+        return list(detected)
+
+    except Exception as e:
+        logger.exception(f"Error during image recognition: {e}")
+        return []
+
 
 
 class RecipeListCreateView(generics.ListCreateAPIView):
