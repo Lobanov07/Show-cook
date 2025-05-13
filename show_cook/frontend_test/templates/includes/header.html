@@ -1,0 +1,56 @@
+{% load static %}
+<style>
+  .custom-link {
+    color: #000000 !important; /* Чёрный цвет для ссылок */
+    text-decoration: none; /* Убираем подчеркивание */
+    padding: 10px; /* Добавляем отступы для удобства */
+    transition: background-color 0.3s, color 0.3s; /* Плавный переход */
+  }
+
+  .custom-link:hover {
+    color: #ffffff; /* Белый цвет текста при наведении */
+    background-color: #333333 !important; /* Темный фон при наведении */
+  }
+
+  .custom-link.active, .custom-link:focus {
+    color: #ffffff; /* Белый цвет текста при активном состоянии */
+    background-color: #A57BCA !important; /* Светло-фиолетовый фон при активном состоянии */
+  }
+
+  .custom-link:visited {
+    color: #000000 !important; /* Чёрный цвет для посещённых ссылок */
+  }
+
+  .btn-custom {
+    color: #000000; /* Чёрный цвет для кнопок */
+    background-color: transparent; /* Прозрачный фон для кнопок по умолчанию */
+    border-color: #000000; /* Чёрная рамка */
+    margin-right: 10px; /* Отступ справа между кнопками */
+    margin-bottom: 5px; /* Отступ снизу между кнопками */
+    transition: background-color 0.3s, color 0.3s; /* Плавный переход */
+    width: 100px; /* Задайте одинаковую ширину для всех кнопок */
+    height: 45px; /* Задайте одинаковую высоту для всех кнопок */
+    display: flex; /* Используем flex для центрирования текста */
+    align-items: center; /* Выравнивание по вертикали */
+    justify-content: center; /* Выравнивание по горизонтали */
+  }
+
+  .btn-custom:hover {
+    color: #ffffff; /* Белый цвет текста при наведении */
+    background-color: #333333; /* Темный фон при наведении */
+  }
+
+  .btn-custom.active, .btn-custom:focus {
+    color: #ffffff; /* Белый цвет текста для активной кнопки */
+    background-color: #A57BCA; /* Светло-фиолетовый фон для активной кнопки */
+  }
+</style>
+<header>
+  <nav class="navbar navbar-light" style="background-color: #C062D3">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'index' %}">
+        Show cook
+      </a>
+    </div>
+  </nav>
+</header>

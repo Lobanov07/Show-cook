@@ -41,3 +41,4 @@ class ProductPrice(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.price} {self.unit} ({self.source})"
+    
