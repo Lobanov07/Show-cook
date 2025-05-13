@@ -241,7 +241,7 @@ class RecipesByProductsWithPriceView(APIView):
         Локальный запуск Scrapy-парсера для обновления цены продукта.
         """
         import os, subprocess
-        project_dir = "D:/dev/Show-cook/show_cook/parsers/prices_parser"
+        project_dir = "C:\easyproject\Show-cook\show_cook\parsers\prices_parcer"
         if not os.path.isdir(project_dir):
             raise FileNotFoundError(f"Dir not found: {project_dir}")
         os.chdir(project_dir)
