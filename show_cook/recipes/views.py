@@ -181,43 +181,54 @@ class RecipesByProductsWithPriceView(APIView):
     Возвращает пагинированный список рецептов с ценой недостающих продуктов и релевантностью.
     """
     schema = AutoSchema()
-    pagination_class = PageNumberPagination  # по умолчанию page_size=10
+    pagination_class = PageNumberPagination
 
     def post(self, request):
-        # 1) Получаем входные продукты
-        image = request.FILES.get('image')
-        raw = (
-            recognize_products_from_image(image)
-            if image
-            else request.data.get('products', [])
-        )
-        products = [p.strip().capitalize() for p in raw if isinstance(p, str) and p.strip()]
-        if not products:
-            return Response({'error': 'No products provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2) Собираем леммы для релевантности
+        image = request.FILES.get('image')
+
+        manual_input = request.data.get('products', [])
+
+        if isinstance(manual_input, (list, tuple)):
+            manual_str = ",".join(manual_input)
+        else:
+            manual_str = str(manual_input or "")
+        manual_list = [p.strip() for p in manual_str.split(',') if p.strip()]
+
+        image_list = recognize_products_from_image(image) if image else []
+
+        raw_products = manual_list + image_list
+
+        products = [
+            p.strip().capitalize()
+            for p in raw_products
+            if isinstance(p, str) and p.strip()
+        ]
+
+        print(products, image_list, manual_list)
+
+        if not products:
+            return Response({'error': 'No products provided'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         input_lemmas = set()
         for p in products:
             input_lemmas |= get_lemmas(p)
 
-        # 3) Читаем параметр сортировки
         sort_by = request.data.get('sort_by', 'price')
         if sort_by not in ('price', 'relevance'):
             return Response({'error': 'Invalid sort_by'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 4) Фильтруем рецепты по ингредиентам и делаем prefetch
         qs = Recipe.objects.all().prefetch_related('ingredients')
         for name in products:
             qs = qs.filter(ingredients__name__icontains=name)
         qs = qs.distinct().order_by('id')
 
-        # 5) Пагинируем сразу QuerySet
         paginator = self.pagination_class()
         page_qs = paginator.paginate_queryset(qs, request, view=self)
         if not page_qs:
             return Response({'error': 'No matching recipes found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 6) Собираем matched/missing для этой страницы
         all_missing = set()
         metas = []
         for rec in page_qs:
@@ -227,10 +238,8 @@ class RecipesByProductsWithPriceView(APIView):
             all_missing |= set(missing)
             metas.append({'recipe_obj': rec, 'matched': matched, 'missing': missing, 'total': len(names)})
 
-        # 7) Bulk-запрос цен из БД
         price_map = {pp.name: pp.price for pp in ProductPrice.objects.filter(name__in=all_missing).order_by('price')}
 
-        # 8) Запускаем парсер для отсутствующих цен
         for name in all_missing:
             if name not in price_map:
                 try:
@@ -243,7 +252,6 @@ class RecipesByProductsWithPriceView(APIView):
                             "scrapy", "crawl", "vkusvill", "-a", f"query={name}"
                         ])
 
-        # 9) Формируем output и сериализуем
         output = []
         for m in metas:
             rec = m['recipe_obj']
@@ -252,11 +260,9 @@ class RecipesByProductsWithPriceView(APIView):
             relevance = (len(m['matched']) / m['total'] * 100) if m['total'] else 0
             output.append({'recipe': rec_data, 'price': round(total_price, 2), 'relevance': round(relevance, 1)})
 
-        # 10) Сортируем
         if sort_by == 'price':
             output.sort(key=lambda x: x['price'])
         else:
             output.sort(key=lambda x: x['relevance'], reverse=True)
 
-        # 11) Возвращаем paginated response
         return paginator.get_paginated_response(output)
