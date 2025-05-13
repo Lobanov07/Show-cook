@@ -224,14 +224,9 @@ class RecipesByProductsWithPriceView(APIView):
             qs = qs.filter(ingredients__name__icontains=name)
         qs = qs.distinct().order_by('id')
 
-        paginator = self.pagination_class()
-        page_qs = paginator.paginate_queryset(qs, request, view=self)
-        if not page_qs:
-            return Response({'error': 'No matching recipes found'}, status=status.HTTP_404_NOT_FOUND)
-
         all_missing = set()
         metas = []
-        for rec in page_qs:
+        for rec in qs:
             names = [ing.name.strip() for ing in rec.ingredients.all()]
             matched = [n for n in names if get_lemmas(n) & input_lemmas]
             missing = [n for n in names if n not in matched]
@@ -265,5 +260,10 @@ class RecipesByProductsWithPriceView(APIView):
         else:
             output.sort(key=lambda x: x['relevance'], reverse=True)
 
+        paginator = self.pagination_class()
+        paginator.page_size = 5
+        page = paginator.paginate_queryset(output, request, view=self)
+        if not page:
+            return Response({'error': 'No matching recipes found'}, status=status.HTTP_404_NOT_FOUND)
 
-        return paginator.get_paginated_response(output)
+        return paginator.get_paginated_response(page)

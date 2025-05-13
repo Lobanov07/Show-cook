@@ -1,4 +1,4 @@
-import '../css/Scanning.css'
+import '../css/Scanning.css';
 import { useState, useRef } from 'react';
 
 const Scanning = () => {
@@ -6,24 +6,28 @@ const Scanning = () => {
   const [sortBy, setSortBy] = useState('price');
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(null);
   const imageInputRef = useRef();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const fetchRecipes = async (pageToFetch = 1) => {
     setError('');
     setResults([]);
 
     const imageFile = imageInputRef.current.files[0];
     let fetchOptions;
 
+    const url = new URL('http://localhost:8000/api/recipes-with-prices/');
+    url.searchParams.set('page', pageToFetch); // 👈 Query-параметр
+
     if (imageFile) {
       const formData = new FormData();
       formData.append('image', imageFile);
       formData.append('sort_by', sortBy);
-      fetchOptions = {
-        method: 'POST',
-        body: formData,
-      };
+      if (products.trim()) {
+        formData.append('products', products.trim());
+      }
+      fetchOptions = { method: 'POST', body: formData };
     } else {
       const productList = products
         .split(',')
@@ -37,18 +41,13 @@ const Scanning = () => {
 
       fetchOptions = {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          products: productList,
-          sort_by: sortBy,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: productList, sort_by: sortBy }),
       };
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/recipes-with-prices/', fetchOptions);
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         setError(`Произошла ошибка: ${response.status} ${response.statusText}`);
@@ -56,19 +55,27 @@ const Scanning = () => {
       }
 
       const data = await response.json();
+      const recipes = data.results || [];
 
-      if (data.error) {
-        setError(data.error);
-      } else if (!Array.isArray(data) || data.length === 0) {
+      if (recipes.length === 0) {
         setError('Рецепты не найдены.');
       } else {
-        setResults(data);
+        setResults(recipes);
+        setPage(pageToFetch);
+        setCount(data.count || null);
       }
     } catch (e) {
       console.error('Fetch error:', e);
       setError(`Ошибка при обработке запроса: ${e.message}`);
     }
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchRecipes(1); // всегда с первой страницы
+  };
+
+  const totalPages = count && results.length > 0 ? Math.ceil(count / results.length) : null;
 
   return (
     <div className="container">
@@ -116,6 +123,20 @@ const Scanning = () => {
           );
         })}
       </div>
+
+      {totalPages && totalPages > 1 && (
+        <div className="pagination" style={{ marginTop: '20px' }}>
+          <button onClick={() => fetchRecipes(page - 1)} disabled={page <= 1}>
+            ◀ Назад
+          </button>
+          <span style={{ margin: '0 10px' }}>
+            Страница {page} из {totalPages}
+          </span>
+          <button onClick={() => fetchRecipes(page + 1)} disabled={page >= totalPages}>
+            Вперёд ▶
+          </button>
+        </div>
+      )}
     </div>
   );
 };
