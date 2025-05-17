@@ -2,14 +2,17 @@ import './App.css';
 import Sidebar from './Components/Sidebar'
 import Header from './Components/Header'
 import Major from './Components/Major';
+
 import {useEffect, useState} from 'react';
 import { AuthProvider, useAuth } from "./Components/AuthContext";
+
 import Autorize from './Components/Autorization';
 import AutorButton from './Components/AutorButton';
 import Team from './Components/Creators';
 import ToScan from './Components/Scan_button';
 import Scanning from './Components/Scanning';
 import Recipes from './Components/Recipes';
+
 import Account from './Components/Account';
 import EditAccount from './Components/EditAccount';
 import RegisterForm from './Components/Register';
@@ -51,7 +54,9 @@ export default function App() {
           </>
         )}
         {Tab === 'Autorization' && (
+
           <Autorize active={Tab} onChange={(current => setTab(current))}/>
+
         )}
         {Tab === 'Features' && (
           <>
@@ -71,7 +76,9 @@ export default function App() {
             <Scanning />
           </>
         )}
+
         {Tab === 'Account' && Auth && (
+
           <>
             <Sidebar active={Tab} onChange={(current => setTab(current))}/>
             <Account active={Tab} onChange={(current => setTab(current))}/>
@@ -83,6 +90,7 @@ export default function App() {
             <EditAccount />
           </>
         )}
+
         {Tab === 'Reg' && (
           <>
             <RegisterForm />
@@ -91,6 +99,7 @@ export default function App() {
         </div>
       </div>
     </AuthProvider>
+
     </>
   );
 }

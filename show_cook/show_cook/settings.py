@@ -140,4 +140,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.User'
 
 
-YOLO_MODEL_PATH = r"D:\dev\Show-cook\cv\best.pt"
+YOLO_MODEL_PATH = rf"{BASE_DIR}\cv\best.pt"
