@@ -1,0 +1,40 @@
+.show-cook body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: linear-gradient(
+    135deg,
+     #1A89D9 0%,
+     #B6A1E0 54%,
+    #9826E3 100%);
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.flexible_show{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1rem;
+}
+
+
+.head_flex{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
+}
+
+.style_button {
+  margin-left: 3vh;
+  margin-top: 5vh;
+  padding: 0.8em 1.6em;
+}
+
