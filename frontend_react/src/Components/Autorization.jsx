@@ -1,14 +1,30 @@
 import { useState } from "react";
 import '../css/Autorization.css'
 
-export default function Autorize (){
-    const [login, setLogin] = useState("");
-    const [password, setPassword] = useState("");
+import axios from "axios";
+import { useAuth } from "./AuthContext";
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Логин:", login, "Пароль:", password);
-      };
+export default function Autorize ({active, onChange}){
+    const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const { login } = useAuth();
+
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:8000/users/login/", credentials);
+      login(res.data.token);
+      alert("Вы успешно вошли в аккаунт!");
+    } catch (err) {
+      const errs = err.response?.data;
+      const msg = errs ? JSON.stringify(errs) : "Ошибка регистрации";
+      alert(msg);
+    }
+  };
+
 
     return(
         <div className="login-wrapper">
@@ -17,26 +33,17 @@ export default function Autorize (){
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-field">
             <label htmlFor="login">Логин</label>
-            <input
-              id="login"
-              type="text"
-              placeholder="Введите логин"
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
-            />
+
+            <input name="username" placeholder="Username" type="username-log" onChange={handleChange} required />
           </div>
           <div className="login-field">
             <label htmlFor="password">Пароль</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Введите пароль"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input name="password" placeholder="Password" type="password" onChange={handleChange} required />
           </div>
-          <div className="forgot-password">
-            <a href="#">Забыли пароль?</a>
+          <div className="register">
+            <a isActive={active === 'Reg'}
+                onClick={() => onChange('Reg')}>Регистрация</a>
+
           </div>
           <button type="submit" className="login-button">Войти</button>
         </form>
