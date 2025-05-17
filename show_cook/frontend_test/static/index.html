@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рецептов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .recipe {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Найти рецепты по ингредиентам</h1>
+        <form id="recipeForm">
+            <label for="products">Введите продукты (через запятую):</label>
+            <input type="text" id="products" name="products" placeholder="Картофель, Сыр">
+            <button type="submit">Найти рецепты</button>
+        </form>
+        <div class="result" id="result">
+            <!-- Результаты будут отображаться здесь -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('recipeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const productsInput = document.getElementById('products').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Очистить предыдущие результаты
+
+            // Преобразуем введённые продукты в массив
+            const products = productsInput.split(',').map(p => p.trim()).filter(p => p);
+
+            // Логируем данные перед отправкой
+            console.log("Products: ", products);
+
+            if (products.length === 0) {
+                resultDiv.innerHTML = `<p style="color: red;">Пожалуйста, введите продукты.</p>`;
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/api/recipes-with-prices/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ products })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Server response:', data); // Логируем ответ для отладки
+
+                    if (data.error) {
+                        console.error('Server error:', data.error);
+                        resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                    } else if (!Array.isArray(data)) {
+                        resultDiv.innerHTML = `<p style="color: red;">Ошибка: сервер вернул некорректные данные</p>`;
+                    } else {
+                        data.forEach(recipe => {
+                            const recipeDiv = document.createElement('div');
+                            recipeDiv.classList.add('recipe');
+                            recipeDiv.innerHTML = `
+                                <h3>${recipe.recipe.title}</h3>
+                                <p>Цена: ${recipe.price ? recipe.price.toFixed(2) : 'Не найдена'}</p>
+                                <p>${recipe.recipe.description}</p>
+                                <a href="${recipe.recipe.link}" target="_blank">Подробнее</a>
+                            `;
+                            resultDiv.appendChild(recipeDiv);
+                        });
+                    }
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">Произошла ошибка: ${response.statusText}</p>`;
+                }
+            } catch (e) {
+                console.error('Fetch error:', e);
+                resultDiv.innerHTML = `<p style="color: red;">Ошибка при обработке запроса: ${e.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
