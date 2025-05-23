@@ -1,5 +1,6 @@
 import '../css/Account.css'
 import { useState } from 'react';
+
 import { useAuth } from './AuthContext';
 import Main_menu from './Sidebar';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +17,9 @@ export default function Account({active, onChange}) {
       <div className="user-profile">
         <div className="avatar-section">
           <div className="avatar"></div>
+
           <p className="username">{user?.username}</p>
+
         </div>
         <div className="info-section" active={Edit} onChange={(current => setEdit(current))}>
           <p className="info-item">email: <span>avtobus@kak.ru</span></p>

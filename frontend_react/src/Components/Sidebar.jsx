@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import '../css/Sidebar.css'
+
 import { useAuth } from './AuthContext';
 import { useState, useEffect } from 'react';
 
@@ -16,6 +17,7 @@ export default function Main_menu() {
         else {setAuth(false)}
       }, [isAuthenticated])
 
+
     return (
         <>
         <aside className="sidebar">
@@ -26,6 +28,7 @@ export default function Main_menu() {
         <button onClick={() => navigate('/profile', {replace: false})}>АККАУНТ</button>
         )}
         
+
       </ul>
     </aside>
     </>

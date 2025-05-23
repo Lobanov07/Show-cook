@@ -33,6 +33,7 @@ from rest_framework.schemas import AutoSchema
 
 from .models import ProductPrice
 from .tasks import crawl_price_for
+from show_cook.settings import BASE_DIR
 
 import os
 import logging
@@ -43,11 +44,9 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Пусть к модели берётся из настроек, или fallback на None
 MODEL_PATH = getattr(settings, 'YOLO_MODEL_PATH', None)
 _model = None
 
-# Инициализация модели при первом вызове
 def _load_model():
     global _model
     if _model is not None:
@@ -240,7 +239,7 @@ class RecipesByProductsWithPriceView(APIView):
                 try:
                     crawl_price_for.delay(name)
                 except Exception:
-                    project_dir = "D:/dev/Show-cook/show_cook/parsers/prices_parser"
+                    project_dir = rf"{BASE_DIR}\show_cook\parsers\prices_parser"
                     if isdir(project_dir):
                         chdir(project_dir)
                         subprocess.Popen([
