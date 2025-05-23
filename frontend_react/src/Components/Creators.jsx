@@ -2,6 +2,7 @@ import '../css/Creators.css'
 import Mark from '../img/Mark.jpg'
 import Kostya from '../img/Kostya.jpg'
 import Tema from '../img/Tema.jpg'
+import Main_menu from './Sidebar';
 
 export default function Team (){
     const teamMembers = [
@@ -23,6 +24,11 @@ export default function Team (){
       ];
       
       return (
+        <>
+        <div className='show_cook'>
+        <div className='flexible_show'>
+            <Main_menu />
+        </div>
         <div className="team-section">
           <h2 className="team-title">О КОМАНДЕ</h2>
           <div className="team-members">
@@ -37,5 +43,7 @@ export default function Team (){
             ))}
           </div>
         </div>
+        </div>
+        </>
       );
 }

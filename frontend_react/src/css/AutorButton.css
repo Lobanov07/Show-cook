@@ -1,4 +1,5 @@
 .button_log {
+    position: fixed;
     background-color: #783da0;
     color: white;
     border: none;

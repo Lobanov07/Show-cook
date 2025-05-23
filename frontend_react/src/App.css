@@ -21,6 +21,17 @@ body {
   gap: 1rem;
 }
 
+.head_flex_header{
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  z-index: 2000;
+}
+
 
 .head_flex{
   display: flex;

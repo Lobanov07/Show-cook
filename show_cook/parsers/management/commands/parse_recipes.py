@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        urls = [f"https://www.povarenok.ru/recipes/show/{x}/" for x in range(200, 1000)]
+        urls = [f"https://www.povarenok.ru/recipes/show/{x}/" for x in range(1, 10)]
 
         def process_url(url):
             recipe_data = parse_povarenok_recipe(url)

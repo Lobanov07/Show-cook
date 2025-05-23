@@ -1,5 +1,6 @@
 import '../css/Scanning.css';
 import { useState, useRef } from 'react';
+import Main_menu from './Sidebar';
 
 const Scanning = () => {
   const [products, setProducts] = useState('');
@@ -78,6 +79,10 @@ const Scanning = () => {
   const totalPages = count && results.length > 0 ? Math.ceil(count / results.length) : null;
 
   return (
+    <>
+    <div className='flexible_show'>
+            <Main_menu />
+        </div>
     <div className="container">
       <h1>Найти рецепты по ингредиентам</h1>
       <form onSubmit={handleSubmit}>
@@ -138,6 +143,7 @@ const Scanning = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

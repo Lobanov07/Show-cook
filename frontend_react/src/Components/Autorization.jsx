@@ -2,10 +2,12 @@ import { useState } from "react";
 import '../css/Autorization.css'
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Autorize ({active, onChange}){
     const [credentials, setCredentials] = useState({ username: "", password: "" });
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -39,7 +41,7 @@ export default function Autorize ({active, onChange}){
           </div>
           <div className="register">
             <a isActive={active === 'Reg'}
-                onClick={() => onChange('Reg')}>Регистрация</a>
+                onClick={() => navigate('/register', {replace: false})}>Регистрация</a>
           </div>
           <button type="submit" className="login-button">Войти</button>
         </form>

@@ -2,8 +2,9 @@
   position: fixed; 
   left: 0;
   top: 200px;
-  width: 400px; 
+  width: 25vw; 
   height: 70vh;
+  min-width: 100px;
   background: rgba(61, 59, 112, 1);
   color: white;
   display: flex;
