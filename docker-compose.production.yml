@@ -1,46 +1,52 @@
-version: '3.8'
+version: "3.8"
 
 volumes:
-  pg_data:
-  static:
+  pg_data_production:
+  static_volume:
 
 services:
   db:
     image: postgres:13
     env_file: .env
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_production:/var/lib/postgresql/data
+    restart: always
+
   backend:
-    build: ./show_cook/
+    image: lobanov07/show-cook_backend:latest
     env_file: .env
     depends_on:
       - db
+
     volumes:
-      - static:/backend_static
+      - static_volume:/app/collected_static
     command: >
       sh -c "
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
         gunicorn show_cook.wsgi:application --bind 0.0.0.0:8000
       "
+    restart: always
 
   frontend:
-    build: ./frontend_react/
+    image: lobanov07/show-cook_frontend:latest
     env_file: .env
     depends_on:
       - backend
+
     volumes:
-      - static:/frontend_static
+      - static_volume:/frontend_static
     command: >
       sh -c "
-        npm install &&
+        npm ci --production &&
         npm run build &&
-        cp -r /app/build/. /frontend_static &&
-        tail -f /dev/null
+        cp -r /app/build/. /frontend_static
       "
 
+    restart: on-failure
+
   gateway:
-    build: ./gateway/
+    image: lobanov07/show-cook_gateway:latest
     env_file: .env
     depends_on:
       - backend
@@ -48,6 +54,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - static:/staticfiles:ro
+      - static_volume:/staticfiles:ro
       - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     entrypoint: ["nginx","-g","daemon off;"]
+    restart: always
