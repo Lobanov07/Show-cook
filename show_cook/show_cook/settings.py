@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 DEBUG = (False if os.getenv('DEBUG_MODE') == 'False' else True)
 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['77.239.124.15', 'show-cook.sytes.net']
 
 
 INSTALLED_APPS = [
@@ -144,4 +144,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.User'
 
 
-YOLO_MODEL_PATH = rf"{BASE_DIR}\cv\best.pt"
+YOLO_MODEL_PATH = BASE_DIR / 'cv' / 'best.pt'
