@@ -1,9 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import "../css/Register.css"
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm({ onSwitch }) {
   const [form, setForm] = useState({ username: "", email: "", password: "",  password2: ""});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,8 +18,12 @@ export default function RegisterForm({ onSwitch }) {
       return;
     }
     try {
-      await axios.post("http://localhost:8000/users/register/", form);
+      const endpoint = '/users/register/';
+      const baseUrl = process.env.REACT_APP_API_URL
+      const apiUrl = `${baseUrl.replace(/\/+$/, '')}${endpoint}`;
+      await axios.post(apiUrl, form);
       alert("Вы зарегистрированы! Теперь войдите");
+      navigate('/login', {replace: false});
     } catch (err) {
       const errs = err.response?.data;
       const msg = errs ? JSON.stringify(errs) : "Ошибка регистрации";

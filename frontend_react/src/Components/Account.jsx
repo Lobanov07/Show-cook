@@ -1,16 +1,53 @@
 import '../css/Account.css'
-import { useState } from 'react';
-
 import { useAuth } from './AuthContext';
 import Main_menu from './Sidebar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate} from 'react-router-dom';
+import {useState, useEffect} from 'react'
+import axios from 'axios'
 
-export default function Account({active, onChange}) {
-    const [Edit, setEdit] = useState('account');
-    const { user } = useAuth();
-    const navigate = useNavigate()
+export default function Account() {
+const { isAuthenticated, token, logout } = useAuth();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Получение данных пользователя
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      return;
+    }
+
+    const fetchUserData = async () => {
+      console.info('Account: Запрос данных пользователя, token:', token);
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        setUserData(response.data);
+      } catch (err) {
+        alert('Не удалось загрузить данные пользователя');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [isAuthenticated, token]);
+
+  const handleLogout = () => {
+    logout();
+    alert('Вы успешно вышли из аккаунта');
+    navigate('/', { replace: true });
+  };
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
     return (
         <>
+        <div className='show-cook'>
         <div className='flexible_show'>
                 <Main_menu />
                 </div>
@@ -18,15 +55,19 @@ export default function Account({active, onChange}) {
         <div className="avatar-section">
           <div className="avatar"></div>
 
-          <p className="username">{user?.username}</p>
+          <p className="username">{userData?.username}</p>
 
         </div>
-        <div className="info-section" active={Edit} onChange={(current => setEdit(current))}>
-          <p className="info-item">email: <span>avtobus@kak.ru</span></p>
-          <p className="info-item">Дата рождения: <span>01.01.1970</span></p>
+        <div className="info-section">
+          <p className="info-item">Email: <span>{userData?.email || '-'}</span></p>
+          <p className="info-item">Дата рождения: <span>{userData?.phoneNumber || '-'}</span></p>
           <p className="info-item">Номер телефона: <span>-</span></p>
           <button className="edit-button" onClick={() => navigate('/edit_profile', {replace: false})}>ИЗМЕНИТЬ ИНФОРМАЦИЮ</button>
+          <button className="logout-button" onClick={handleLogout}>
+            ВЫЙТИ
+          </button>
         </div>
+      </div>
       </div>
     </>
     );

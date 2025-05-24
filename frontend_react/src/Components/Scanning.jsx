@@ -1,5 +1,5 @@
 import '../css/Scanning.css';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Main_menu from './Sidebar';
 
 const Scanning = () => {
@@ -10,7 +10,32 @@ const Scanning = () => {
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(null);
   const imageInputRef = useRef();
+  const [previewUrl, setPreviewUrl] = useState(null);
 
+  // Обработчик изменения файла
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file); // Создаём временный URL для предпросмотра
+      setPreviewUrl(url);
+    }
+  };
+
+  // Обработчик удаления изображения
+  const handleImageRemove = () => {
+    setPreviewUrl(null); // Очищаем предпросмотр
+    imageInputRef.current.value = ''; // Сбрасываем input
+  };
+
+  // Очистка URL при размонтировании компонента или удалении изображения
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl); // Освобождаем память
+      }
+    };
+  }, [previewUrl]);
+  
   const fetchRecipes = async (pageToFetch = 1) => {
     setError('');
     setResults([]);
@@ -18,7 +43,11 @@ const Scanning = () => {
     const imageFile = imageInputRef.current.files[0];
     let fetchOptions;
 
-    const url = new URL('http://localhost:8000/api/recipes-with-prices/');
+    const endpoint = '/api/recipes-with-prices/';
+    const baseUrl = process.env.REACT_APP_API_URL
+    const apiUrl = `${baseUrl.replace(/\/+$/, '')}${endpoint}`;
+  
+    const url = new URL(apiUrl);
     url.searchParams.set('page', pageToFetch); // 👈 Query-параметр
 
     if (imageFile) {
@@ -76,7 +105,7 @@ const Scanning = () => {
     fetchRecipes(1); // всегда с первой страницы
   };
 
-  const totalPages = count && results.length > 0 ? Math.ceil(count / results.length) : null;
+  const totalPages = count ? Math.ceil(count / 5) : 1;
 
   return (
     <>
@@ -87,7 +116,30 @@ const Scanning = () => {
       <h1>Найти рецепты по ингредиентам</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="image">Загрузите изображение:</label>
-        <input type="file" id="image" accept="image/*" ref={imageInputRef} />
+        <input
+            type="file"
+            id="image"
+            accept="image/*"
+            ref={imageInputRef}
+            onChange={handleImageChange} // Добавляем обработчик изменения
+          />
+          {/* Предпросмотр изображения */}
+          {previewUrl && (
+            <div className="image-preview" style={{ marginTop: '10px' }}>
+              <img
+                src={previewUrl}
+                alt="Preview"
+                style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'contain' }}
+              />
+              <button
+                type="button"
+                onClick={handleImageRemove}
+                style={{ marginLeft: '10px', color: 'red' }}
+              >
+                🗑️
+              </button>
+            </div>
+          )}
 
         <label htmlFor="products">Или введите продукты (через запятую):</label>
         <input
@@ -108,7 +160,7 @@ const Scanning = () => {
       </form>
 
       <div className="result">
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && (<p style={{ color: 'red' }}>{error}</p>)}
         {results.map((item, index) => {
           const { recipe, price, relevance } = item;
           return (
@@ -131,14 +183,14 @@ const Scanning = () => {
 
       {totalPages && totalPages > 1 && (
         <div className="pagination" style={{ marginTop: '20px' }}>
-          <button onClick={() => fetchRecipes(page - 1)} disabled={page <= 1}>
-            ◀ Назад
+          <button className="button-row" onClick={() => fetchRecipes(page - 1)} disabled={page <= 1}>
+            ⮜ Назад
           </button>
           <span style={{ margin: '0 10px' }}>
             Страница {page} из {totalPages}
           </span>
-          <button onClick={() => fetchRecipes(page + 1)} disabled={page >= totalPages}>
-            Вперёд ▶
+          <button className="button-row" onClick={() => fetchRecipes(page + 1)} disabled={page >= totalPages}>
+            Вперёд ⮞
           </button>
         </div>
       )}

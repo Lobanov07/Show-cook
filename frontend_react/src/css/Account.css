@@ -71,6 +71,7 @@
   
   .edit-button:hover {
     background-color: #6b94c1;
+    transition: background-color 0.3s;
   }
   
   .scan-count {
@@ -82,4 +83,23 @@
     font-size: 36px;
     font-weight: bold;
     color: #ffffff;
+  }
+
+    .logout-button {
+    background-color: rgb(111, 102, 114);
+    margin-left: 15%;
+    width: 200px;
+    color: white;
+    padding: 10px;
+    border-radius: 20px;
+    border:none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: "MainFont", cursive, sans-serif;
+  }
+  
+  .logout-button:hover {
+    background-color: #333;
+    font-family: "MainFont", cursive, sans-serif;
   }

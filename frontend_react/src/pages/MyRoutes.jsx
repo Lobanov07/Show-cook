@@ -1,4 +1,4 @@
-import {Routes, Route} from 'react-router-dom'
+import {Routes, Route, useLocation} from 'react-router-dom'
 import RegisterForm from '../Components/Register'
 import Autorize from '../Components/Autorization'
 import Major from '../Components/Major'
@@ -8,28 +8,21 @@ import Scanning from '../Components/Scanning'
 import Recipes from '../Components/Recipes'
 import Header from '../Components/Header'
 import Team from '../Components/Creators'
-import { useEffect, useState } from 'react'
 import { useAuth } from '../Components/AuthContext'
 import AutorButton from '../Components/AutorButton'
+import ProtectedRoute from './ProtectedRoute'
+
 
 export default function MyRoutes() {
-    const [Auth, setAuth] = useState(false)
-    const isAuthenticated = useAuth();
+    const { isAuthenticated } = useAuth();
+    const location = useLocation();
     
-      useEffect(() => {
-        if (isAuthenticated) {
-          setAuth(true)
-        }
-        else {
-          setAuth(false)
-        }
-      }, [isAuthenticated])
     return (
         <>
         <div className="show-cook">
                 <div className='head_flex'>
                     <Header />
-                {Auth && (
+                {!isAuthenticated && location.pathname !== '/login' && (
                 <AutorButton />)}
                 </div>
             </div>
@@ -37,10 +30,10 @@ export default function MyRoutes() {
             <Route path="/" element={<Major />} />
             <Route path="login" element={<Autorize />} />
             <Route path="register" element={<RegisterForm />} />
-            <Route path="profile" element={<Account />} />
-            <Route path="edit_profile" element={<EditAccount />} />
-            <Route path="to_scan" element={<Scanning />} />
-            <Route path="features_recipes" element={<Recipes />} />
+            <Route path="profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="edit_profile" element={<ProtectedRoute><EditAccount /></ProtectedRoute>} />
+            <Route path="to_scan" element={<ProtectedRoute><Scanning /></ProtectedRoute>} />
+            <Route path="features_recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
             <Route path="team" element={<Team />} />
         </Routes>
     </>

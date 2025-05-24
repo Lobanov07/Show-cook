@@ -29,7 +29,6 @@
 
   .Main-button {
     display: flex;
-    position: fixed;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
