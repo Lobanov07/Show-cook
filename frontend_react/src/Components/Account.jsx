@@ -4,6 +4,7 @@ import Main_menu from './Sidebar';
 import { useNavigate, Navigate} from 'react-router-dom';
 import {useState, useEffect} from 'react'
 import axios from 'axios'
+import avatar from '../img/avatar.jpg'
 
 export default function Account() {
 const { isAuthenticated, token, logout } = useAuth();
@@ -26,7 +27,10 @@ const { isAuthenticated, token, logout } = useAuth();
         });
         setUserData(response.data);
       } catch (err) {
-        alert('Не удалось загрузить данные пользователя');
+        // alert('Не удалось загрузить данные пользователя');
+        const errs = err.response?.data;
+        const msg = errs ? JSON.stringify(errs) : 'Не удалось загрузить данные пользователя';
+        alert(msg);
       } finally {
         setIsLoading(false);
       }
@@ -53,15 +57,19 @@ const { isAuthenticated, token, logout } = useAuth();
                 </div>
       <div className="user-profile">
         <div className="avatar-section">
-          <div className="avatar"></div>
-
+          <div className='avatar'>
+          <img className="photo" id='box' src={
+                  userData?.photo || avatar
+                }
+                alt="Avatar" />
+          </div>
           <p className="username">{userData?.username}</p>
 
         </div>
         <div className="info-section">
           <p className="info-item">Email: <span>{userData?.email || '-'}</span></p>
-          <p className="info-item">Дата рождения: <span>{userData?.phoneNumber || '-'}</span></p>
-          <p className="info-item">Номер телефона: <span>-</span></p>
+          <p className="info-item">Дата рождения: <span>{userData?.date_of_birth || '-'}</span></p>
+          <p className="info-item">Номер телефона: <span>{userData?.phone_number || '-'}</span></p>
           <button className="edit-button" onClick={() => navigate('/edit_profile', {replace: false})}>ИЗМЕНИТЬ ИНФОРМАЦИЮ</button>
           <button className="logout-button" onClick={handleLogout}>
             ВЫЙТИ

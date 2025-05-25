@@ -11,7 +11,7 @@ import Team from '../Components/Creators'
 import { useAuth } from '../Components/AuthContext'
 import AutorButton from '../Components/AutorButton'
 import ProtectedRoute from './ProtectedRoute'
-
+import NotFound from '../Components/NotFound';
 
 export default function MyRoutes() {
     const { isAuthenticated } = useAuth();
@@ -35,6 +35,7 @@ export default function MyRoutes() {
             <Route path="to_scan" element={<ProtectedRoute><Scanning /></ProtectedRoute>} />
             <Route path="features_recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
             <Route path="team" element={<Team />} />
+            <Route path="*" element={<NotFound />} />
         </Routes>
     </>
     )

@@ -4,15 +4,17 @@ import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Main_menu from './Sidebar';
 import axios from 'axios';
+import PhoneInput from 'react-phone-input-2';
+import EmptyPhoto from '../img/avatar.jpg'
 
 export default function EditAccount() {
   const [avatar, setAvatar] = useState('');
+  const [userData, setUserData] = useState(null);
   const [login, setLogin] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [dob, setDob] = useState('');
   const [phone, setPhone] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const { token, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -23,25 +25,35 @@ export default function EditAccount() {
       navigate('/login', { replace: true });
       return;
     }
+    const fetchUserData = async () => {
+      console.info('Account: Запрос данных пользователя, token:', token);
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        setUserData(response.data);
+      } catch (err) {
+        alert('Не удалось загрузить данные пользователя');
+      }
+    };
+
+    fetchUserData();
 
     const fetchProfile = async () => {
-      setIsLoading(true);
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
           headers: { Authorization: `Token ${token}` },
         });
         console.info('EditAccount: Данные профиля:', response.data);
         setLogin(response.data.username || 'USER');
-        setDob(response.data.dateOfBirth || '1970-01-01');
-        setPhone(response.data.phoneNumber || '');
-        // Аватар пока не загружаем, так как бэкенд его не возвращает
+        setDob(response.data.date_of_birth || '1970-01-01');
+        setPhone(response.data.phone_number || '');
+        setAvatar(response.data.photo || '');
       } catch (err) {
         console.error('EditAccount: Ошибка загрузки профиля:', err.response?.data, err.message);
         alert('Не удалось загрузить данные профиля');
         navigate('/profile', { replace: true });
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
 
     fetchProfile();
@@ -65,11 +77,10 @@ export default function EditAccount() {
         return;
       }
     }
-    setIsLoading(true);
     const formData = new FormData();
     if (avatar) {
       const avatarFile = document.querySelector('#avatarUpload').files[0];
-      if (avatarFile) formData.append('avatar', avatarFile);
+      if (avatarFile) formData.append('photo', avatarFile);
     }
     formData.append('username', login);
     if (newPassword) formData.append('password', newPassword);
@@ -91,19 +102,18 @@ export default function EditAccount() {
       console.error('EditAccount: Ошибка обновления профиля:', err.response?.data, err.message);
       const msg = err.response?.data?.detail || 'Ошибка при сохранении данных';
       alert(msg);
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleReset = () => {
-    setLogin('USER');
+    setLogin(userData?.username);
     setNewPassword('');
     setRepeatPassword('');
-    setDob('1970-01-01');
-    setPhone('');
-    setAvatar('');
+    setDob(userData?.date_of_birth);
+    setPhone(userData?.phone_number);
+    setAvatar(userData?.photo);
     console.info('EditAccount: Сброс формы');
+    navigate('/profile', { replace: true });
   };
 
   if (!isAuthenticated) {
@@ -118,13 +128,13 @@ export default function EditAccount() {
       </div>
       <div className="user-info-container">
         <h2 className="NameEdit">ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ</h2>
-        {isLoading ? (
-          <p>Загрузка...</p>
-        ) : (
           <div className="user-form">
             <div className="avatar-section">
-              <img src={avatar || 'https://via.placeholder.com/100'} alt="Аватар" />
+              <img src={avatar || EmptyPhoto} alt="Аватар" />
               <label htmlFor="avatarUpload" className="btn">ИЗМЕНИТЬ ФОТО</label>
+              {avatar && (<button type="button" className="btn_remove-avatar" onClick={() => setAvatar('')}>
+                УДАЛИТЬ ФОТО
+              </button>)}
               <input
                 type="file"
                 id="avatarUpload"
@@ -159,25 +169,25 @@ export default function EditAccount() {
                 <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
               </label>
               <label>
-                НОМЕР ТЕЛЕФОНА:
-                <input
-                  type="tel"
+                <PhoneInput
+                  country={'ru'}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  inputClass="Phone-Input"
+                  onChange={(phone) => setPhone(phone)}
                   placeholder="Не указан"
+                  specialLabel='НОМЕР ТЕЛЕФОНА:'
                 />
               </label>
               <div className="buttons">
-                <button type="reset" className="btn cancel" disabled={isLoading}>
+                <button type="reset" className="btn cancel">
                   ОТМЕНИТЬ ИЗМЕНЕНИЯ
                 </button>
-                <button type="submit" className="btn save" disabled={isLoading}>
-                  {isLoading ? 'СОХРАНЕНИЕ...' : 'СОХРАНИТЬ ИЗМЕНЕНИЯ'}
+                <button type="submit" className="btn save">
+                  СОХРАНИТЬ ИЗМЕНЕНИЯ
                 </button>
               </div>
             </form>
           </div>
-        )}
       </div>
     </div>
   );

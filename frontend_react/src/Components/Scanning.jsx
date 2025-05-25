@@ -1,6 +1,7 @@
 import '../css/Scanning.css';
 import { useState, useRef, useEffect } from 'react';
 import Main_menu from './Sidebar';
+import Preloader1 from '../pages/Preloader1';
 
 const Scanning = () => {
   const [products, setProducts] = useState('');
@@ -11,6 +12,7 @@ const Scanning = () => {
   const [count, setCount] = useState(null);
   const imageInputRef = useRef();
   const [previewUrl, setPreviewUrl] = useState(null);
+   const [isLoading, setIsLoading] = useState(false);
 
   // Обработчик изменения файла
   const handleImageChange = (e) => {
@@ -37,6 +39,7 @@ const Scanning = () => {
   }, [previewUrl]);
   
   const fetchRecipes = async (pageToFetch = 1) => {
+    setIsLoading(true);
     setError('');
     setResults([]);
 
@@ -98,11 +101,15 @@ const Scanning = () => {
       console.error('Fetch error:', e);
       setError(`Ошибка при обработке запроса: ${e.message}`);
     }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchRecipes(1); // всегда с первой страницы
+    
   };
 
   const totalPages = count ? Math.ceil(count / 5) : 1;
@@ -160,6 +167,7 @@ const Scanning = () => {
       </form>
 
       <div className="result">
+        {isLoading && <Preloader1 />}
         {error && (<p style={{ color: 'red' }}>{error}</p>)}
         {results.map((item, index) => {
           const { recipe, price, relevance } = item;
