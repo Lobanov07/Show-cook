@@ -1,33 +1,19 @@
+import { useNavigate } from 'react-router-dom';
 import '../css/Sidebar.css'
-
 import { useAuth } from './AuthContext';
-import { useState, useEffect } from 'react';
 
-export default function Main_menu({active, onChange}) {
-    const [Auth, setAuth] = useState(false);
-    const isAuthenticated = useAuth();
-    
-    useEffect(() => {
-        if (isAuthenticated) {
-                setAuth(true)
-        }
-        else {setAuth(false)}
-      }, [isAuthenticated])
+export default function Main_menu() {
+    const { isAuthenticated } = useAuth();
 
-
+    const navigate = useNavigate()
     return (
         <>
         <aside className="sidebar">
       <ul className="menu">
-
-        <button isActive={active === 'Features'}
-                onClick={() => onChange('Features')}>ИЗБРАННЫЕ РЕЦЕПТЫ</button>
-        <button isActive={active === 'Team'}
-                onClick={() => onChange('Team')}>О КОМАНДЕ</button>
-
-        {Auth && (
-        <button isActive={active === 'Account'}
-                onClick={() => onChange('Account')}>АККАУНТ</button>
+        <button onClick={() => navigate('/features_recipes', {replace: false})}>ИЗБРАННЫЕ РЕЦЕПТЫ</button>
+        <button onClick={() => navigate('/team', {replace: false})}>О КОМАНДЕ</button>
+        {isAuthenticated && (
+        <button onClick={() => navigate('/profile', {replace: false})}>АККАУНТ</button>
         )}
         
 

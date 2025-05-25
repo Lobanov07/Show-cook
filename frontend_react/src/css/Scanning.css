@@ -1,7 +1,7 @@
 .container {
   width: 600px;
-  margin-left: 15rem;
-  margin-top: 5rem;
+  margin-left: 45%;
+  margin-top: 3rem;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -18,7 +18,7 @@
 form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
 }
 
 label {
@@ -50,22 +50,83 @@ input[type="file"] {
   background-color: rgba(61, 59, 112, 1);
 }
 
+.button-row {
+  padding: 5px 8px;
+  font-size: 14px;
+  font-family: "MainFont", sans-serif;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px 0 rgb(194, 189, 207);
+  transition: 0.5s;
+  background-color: rgb(39, 39, 39);
+}
+
+.button-row:hover {
+  transform: translate(0,-1px);
+  box-shadow: 0 20px 40px 0 rgb(65, 5, 230);
+}
+.button-row:disabled {
+  background-color: rgb(173, 173, 173);
+  transition: 0s;
+  pointer-events: none;
+}
+
 .find-recipe:hover {
-  transform: translate(0,-3px);
+  transform: translate(0,-1px);
   box-shadow: 0 20px 40px 0 rgb(65, 5, 230);
 }
 
-
 .result {
-  margin-top: 24px;
+  margin-top: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  scrollbar-width: none;
+  scrollbar-color: #888 #f1f1f1;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.result::-webkit-scrollbar {
+  width: 8px;
+  border-radius: 10px;
+}
+
+.result::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.result::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+.result::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 10px;
 }
 
 .recipe {
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 14px;
+  margin-bottom: 18px;
   background-color: #fff;
+  transition: background-color 0.5s, transform 0.6s;
+  z-index: 1000;
+}
+
+.recipe:hover{
+  background-color: #7391c2;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .recipe h3 {
@@ -96,3 +157,29 @@ p {
     src: url('../fonts/mvboli.ttf') format('truetype');
     font-weight: normal;
   }
+
+  .image-preview {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.image-preview img {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.image-preview button {
+  background-color: #970536;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.image-preview button:hover {
+  background-color: #d9363e;
+}
