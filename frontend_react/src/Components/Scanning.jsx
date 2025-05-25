@@ -1,7 +1,10 @@
+// src/components/Scanning.jsx
+import React, { useState, useRef } from 'react';
 import '../css/Scanning.css';
 import { useState, useRef, useEffect } from 'react';
 import Main_menu from './Sidebar';
 import Preloader1 from '../pages/Preloader1';
+
 
 const Scanning = () => {
   const [products, setProducts] = useState('');
@@ -44,7 +47,9 @@ const Scanning = () => {
     setResults([]);
 
     const imageFile = imageInputRef.current.files[0];
+    const endpoint = `/api/recipes-with-prices/?page=${pageToFetch}`;
     let fetchOptions;
+
 
     const endpoint = '/api/recipes-with-prices/';
     const baseUrl = process.env.REACT_APP_API_URL
@@ -53,19 +58,29 @@ const Scanning = () => {
     const url = new URL(apiUrl);
     url.searchParams.set('page', pageToFetch); // 👈 Query-параметр
 
+
     if (imageFile) {
+      // multipart/form-data запрос
       const formData = new FormData();
       formData.append('image', imageFile);
       formData.append('sort_by', sortBy);
-      if (products.trim()) {
-        formData.append('products', products.trim());
+      formData.append('products', products.trim());
+
+      // отладка: выводим все поля FormData в консоль
+      for (let [key, val] of formData.entries()) {
+        console.log('formData entry:', key, val);
       }
-      fetchOptions = { method: 'POST', body: formData };
+
+      fetchOptions = {
+        method: 'POST',
+        body: formData,
+      };
     } else {
+      // JSON-запрос
       const productList = products
         .split(',')
         .map((p) => p.trim())
-        .filter((p) => p);
+        .filter(Boolean);
 
       if (productList.length === 0) {
         setError('Пожалуйста, введите продукты или загрузите фото.');
@@ -80,31 +95,31 @@ const Scanning = () => {
     }
 
     try {
-      const response = await fetch(url, fetchOptions);
-
+      const response = await fetch(endpoint, fetchOptions);
       if (!response.ok) {
-        setError(`Произошла ошибка: ${response.status} ${response.statusText}`);
+        setError(`Ошибка сервера: ${response.status} ${response.statusText}`);
         return;
       }
 
       const data = await response.json();
-      const recipes = data.results || [];
+      const list = data.results || [];
 
-      if (recipes.length === 0) {
+      if (list.length === 0) {
         setError('Рецепты не найдены.');
       } else {
-        setResults(recipes);
+        setResults(list);
         setPage(pageToFetch);
-        setCount(data.count || null);
+        setCount(data.count ?? null);
       }
     } catch (e) {
       console.error('Fetch error:', e);
-      setError(`Ошибка при обработке запроса: ${e.message}`);
+      setError(`Ошибка при запросе: ${e.message}`);
     }
     finally {
       setIsLoading(false);
     }
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -114,6 +129,7 @@ const Scanning = () => {
 
   const totalPages = count ? Math.ceil(count / 5) : 1;
 
+
   return (
     <>
     <div className='flexible_show'>
@@ -121,9 +137,11 @@ const Scanning = () => {
         </div>
     <div className="container">
       <h1>Найти рецепты по ингредиентам</h1>
-      <form onSubmit={handleSubmit}>
+
+      <div className="form-block">
         <label htmlFor="image">Загрузите изображение:</label>
         <input
+
             type="file"
             id="image"
             accept="image/*"
@@ -148,6 +166,7 @@ const Scanning = () => {
             </div>
           )}
 
+
         <label htmlFor="products">Или введите продукты (через запятую):</label>
         <input
           type="text"
@@ -158,15 +177,26 @@ const Scanning = () => {
         />
 
         <label htmlFor="sort">Сортировать по:</label>
-        <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <select
+          id="sort"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
           <option value="price">Цене недостающих продуктов</option>
           <option value="relevance">Релевантности</option>
         </select>
 
-        <button className="find-recipe" type="submit">Найти рецепты</button>
-      </form>
+        <button
+          type="button"
+          className="find-recipe"
+          onClick={() => fetchRecipes(1)}
+        >
+          Найти рецепты
+        </button>
+      </div>
 
       <div className="result">
+
         {isLoading && <Preloader1 />}
         {error && (<p style={{ color: 'red' }}>{error}</p>)}
         {results.map((item, index) => {
@@ -193,12 +223,15 @@ const Scanning = () => {
         <div className="pagination" style={{ marginTop: '20px' }}>
           <button className="button-row" onClick={() => fetchRecipes(page - 1)} disabled={page <= 1}>
             ⮜ Назад
+
           </button>
-          <span style={{ margin: '0 10px' }}>
+          <span>
             Страница {page} из {totalPages}
           </span>
+
           <button className="button-row" onClick={() => fetchRecipes(page + 1)} disabled={page >= totalPages}>
             Вперёд ⮞
+
           </button>
         </div>
       )}
