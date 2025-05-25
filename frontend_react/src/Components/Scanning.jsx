@@ -1,5 +1,4 @@
 // src/components/Scanning.jsx
-import React, { useState, useRef } from 'react';
 import '../css/Scanning.css';
 import { useState, useRef, useEffect } from 'react';
 import Main_menu from './Sidebar';
@@ -47,7 +46,7 @@ const Scanning = () => {
     setResults([]);
 
     const imageFile = imageInputRef.current.files[0];
-    const endpoint = `/api/recipes-with-prices/?page=${pageToFetch}`;
+
     let fetchOptions;
 
 
