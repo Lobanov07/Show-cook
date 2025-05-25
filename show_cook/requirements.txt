@@ -5,6 +5,8 @@ django-cors-headers
 python-dotenv
 django-debug-toolbar
 pytest-django
+psycopg2-binary
+django_bootstrap5
 
 # Parsing
 requests
@@ -17,7 +19,7 @@ celery
 
 # Computer Vision
 numpy
-opencv-python
+opencv-python-headless
 pillow
 torch
 torchvision

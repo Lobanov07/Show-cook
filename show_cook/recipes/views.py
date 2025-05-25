@@ -6,33 +6,17 @@ from .serializers import RecipeSerializer
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
-import requests
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+
 from os import chdir
 from os.path import isdir
 import subprocess
-
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.schemas import AutoSchema
-
-from recipes.models import Recipe, Ingredient, ProductPrice
-from recipes.serializers import RecipeSerializer
 from recipes.tasks import crawl_price_for
 import inspect
 from collections import namedtuple
 import re
 import requests
 
-from django.db.models import Q
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.schemas import AutoSchema
-
-from .models import ProductPrice
-from .tasks import crawl_price_for
 from show_cook.settings import BASE_DIR
 
 import os
@@ -74,7 +58,6 @@ def recognize_products_from_image(image_file) -> list[str]:
         return []
 
     try:
-        # Читаем байты изображения
         image_file.seek(0)
         img_bytes = image_file.read()
         arr = np.frombuffer(img_bytes, dtype=np.uint8)
@@ -83,7 +66,6 @@ def recognize_products_from_image(image_file) -> list[str]:
             logger.warning("Failed to decode image for recognition")
             return []
 
-        # Инференс
         results = _model(img)
         detected = set()
         for res in results:
@@ -181,6 +163,7 @@ class RecipesByProductsWithPriceView(APIView):
     """
     schema = AutoSchema()
     pagination_class = PageNumberPagination
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request):
 

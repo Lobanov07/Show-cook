@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 DEBUG = (False if os.getenv('DEBUG_MODE') == 'False' else True)
 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['77.239.124.15', 'show-cook.sytes.net']
 
 
 INSTALLED_APPS = [
@@ -74,9 +74,13 @@ print(os.path.abspath(BASE_DIR / "frontend_test" / "templates"))
 WSGI_APPLICATION = "show_cook.wsgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django'),
+        'USER': os.getenv('POSTGRES_USER', 'django'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -106,7 +110,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = '/backend_static'
 
 
 STATICFILES_DIRS = [
@@ -140,4 +144,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.User'
 
 
-YOLO_MODEL_PATH = rf"{BASE_DIR}\cv\best.pt"
+YOLO_MODEL_PATH = BASE_DIR / 'cv' / 'best.pt'
