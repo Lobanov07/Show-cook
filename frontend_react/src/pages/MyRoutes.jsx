@@ -32,7 +32,7 @@ export default function MyRoutes() {
             <Route path="register" element={<RegisterForm />} />
             <Route path="profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
             <Route path="edit_profile" element={<ProtectedRoute><EditAccount /></ProtectedRoute>} />
-            <Route path="to_scan" element={<ProtectedRoute><Scanning /></ProtectedRoute>} />
+            <Route path="to_scan" element={<Scanning />} />
             <Route path="features_recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
             <Route path="team" element={<Team />} />
             <Route path="*" element={<NotFound />} />

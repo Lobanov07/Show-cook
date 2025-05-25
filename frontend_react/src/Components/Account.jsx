@@ -22,7 +22,7 @@ const { isAuthenticated, token, logout } = useAuth();
       console.info('Account: Запрос данных пользователя, token:', token);
       setIsLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
+        const response = await axios.get(`/users/profile/`, {
           headers: { Authorization: `Token ${token}` },
         });
         setUserData(response.data);

@@ -28,7 +28,7 @@ export default function EditAccount() {
     const fetchUserData = async () => {
       console.info('Account: Запрос данных пользователя, token:', token);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
+        const response = await axios.get(`/users/profile/`, {
           headers: { Authorization: `Token ${token}` },
         });
         setUserData(response.data);
@@ -41,7 +41,7 @@ export default function EditAccount() {
 
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/profile/`, {
+        const response = await axios.get(`/users/profile/`, {
           headers: { Authorization: `Token ${token}` },
         });
         console.info('EditAccount: Данные профиля:', response.data);
@@ -89,7 +89,7 @@ export default function EditAccount() {
 
     try {
       console.info('EditAccount: Отправка обновленных данных');
-      const response = await axios.patch(`${process.env.REACT_APP_API_URL}/users/profile/`, formData, {
+      const response = await axios.patch(`/users/profile/`, formData, {
         headers: {
           Authorization: `Token ${token}`,
           'Content-Type': 'multipart/form-data',
