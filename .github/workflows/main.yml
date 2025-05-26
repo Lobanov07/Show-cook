@@ -3,7 +3,7 @@ name: Main Show-cook workflow
 on:
   push:
     branches:
-      - deploy
+      - Development
 
 jobs:
   tests:
