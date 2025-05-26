@@ -1,7 +1,9 @@
+import logging
+import os
+
 from django.core.management.base import BaseCommand
 from scrapy.cmdline import execute
-import os
-import logging
+
 
 class Command(BaseCommand):
     help = "Парсит цены с ВкусВилл"
@@ -13,7 +15,8 @@ class Command(BaseCommand):
         query = kwargs["query"]
         self.stdout.write(f"Ищем цены на: {query}")
 
-        project_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'prices_parser')
+        project_dir = os.path.join(
+            os.path.dirname(__file__), '..', '..', 'prices_parser')
 
         if not os.path.exists(project_dir):
             raise FileNotFoundError(f"Директория не найдена: {project_dir}")
