@@ -18,7 +18,7 @@ export default function Team (){
         },
         {
           name: "Артём Ледовских",
-          description: "Хороший человек",
+          description: "Хор0ший человек",
           image: Tema
         },
       ];
