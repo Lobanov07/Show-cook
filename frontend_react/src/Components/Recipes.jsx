@@ -1,7 +1,14 @@
 import '../css/Recipes.css'
+import Main_menu from './Sidebar';
 
 export default function Recipes(){
     return (
+        <>
+        <div className='show-cook'>
+        <div className='flexible_show'>
+            <Main_menu />
+        </div>
+        </div>
         <div className='flexible'>
             <div className='border-title'>
             <h2 className="recipe-title">ИЗБРАННЫЕ РЕЦЕПТЫ</h2>
@@ -17,5 +24,7 @@ export default function Recipes(){
             </ul>
         </div>
         </div>
+        
+        </>
       );
 }

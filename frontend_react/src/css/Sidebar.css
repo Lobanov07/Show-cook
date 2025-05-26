@@ -2,8 +2,10 @@
   position: fixed; 
   left: 0;
   top: 200px;
-  width: 400px; 
+  width: 25vw; 
   height: 70vh;
+  min-width: 300px;
+  max-width: 15rem;
   background: rgba(61, 59, 112, 1);
   color: white;
   display: flex;
@@ -50,6 +52,7 @@
   background: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
 }
+
 
 @font-face {
   font-family: 'MainFont';
