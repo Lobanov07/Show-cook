@@ -101,7 +101,7 @@ jobs:
         with:
           context: ./gateway/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_gateway:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/show-cook_gateway:latest
 
   deploy:
     runs-on: ubuntu-latest
