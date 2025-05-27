@@ -1,15 +1,18 @@
 import { useState } from "react";
 import "../css/Autorization.css";
 import { useAuth } from "./AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Preloader2 from "../pages/Preloader2";
+import Header from "./Header";
+import AutorButton from "./AutorButton";
 
 export default function Autorize({ active }) {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   const handleChange = (e) =>
@@ -45,6 +48,10 @@ export default function Autorize({ active }) {
   };
 
     return(
+      <>
+      <div className='head_flex' style={{marginTop: '40px'}}>
+          <Header />
+        </div>
         <div className="login-wrapper">
       <div className="login-container">
         <h2 className="login-title">Вход в систему</h2>
@@ -59,12 +66,13 @@ export default function Autorize({ active }) {
             <input name="password" placeholder="Password" type="password" onChange={handleChange} required />
           </div>
           <div className="register">
-            <a isActive={active === 'Reg'}
-                onClick={() => navigate('/register', {replace: false})}>Регистрация</a>
+            <button isActive={active === 'Reg'}
+                onClick={() => navigate('/register', {replace: false})}>Регистрация</button>
           </div>
           <button type="submit" className="login-button" disabled={isLoading}>{isLoading ? <Preloader2 /> : "Войти"}</button>
         </form>
       </div>
     </div>
+    </>
     )
 }

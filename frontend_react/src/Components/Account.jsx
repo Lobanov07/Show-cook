@@ -70,6 +70,7 @@ const { isAuthenticated, token, logout } = useAuth();
           <p className="info-item">Email: <span>{userData?.email || '-'}</span></p>
           <p className="info-item">Дата рождения: <span>{userData?.date_of_birth || '-'}</span></p>
           <p className="info-item">Номер телефона: <span>{userData?.phone_number || '-'}</span></p>
+          <button className="features_recipes" onClick={() => navigate('/features_recipes', {replace: false})}>ИЗБРАННЫЕ РЕЦЕПТЫ</button>
           <button className="edit-button" onClick={() => navigate('/edit_profile', {replace: false})}>ИЗМЕНИТЬ ИНФОРМАЦИЮ</button>
           <button className="logout-button" onClick={handleLogout}>
             ВЫЙТИ
