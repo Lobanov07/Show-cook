@@ -26,7 +26,7 @@ export default function MyRoutes() {
             <Route path="login" element={<Autorize />} />
             <Route path="register" element={<RegisterForm />} />
             <Route path="profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-            <Route path="recipes" element={<AllRecipes />} />
+            {/* <Route path="recipes" element={<AllRecipes />} /> */}
             <Route path="edit_profile" element={<ProtectedRoute><EditAccount /></ProtectedRoute>} />
             <Route path="to_scan" element={<Scanning />} />
             <Route path="features_recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />

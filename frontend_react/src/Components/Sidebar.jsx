@@ -16,7 +16,7 @@ export default function Main_menu() {
                     <Header />
           </div>
       <ul className="menu">
-        <button onClick={() => navigate('/recipes', {replace: false})}>ПОИСК РЕЦЕПТОВ</button>
+        {/* <button onClick={() => navigate('/recipes', {replace: false})}>ПОИСК РЕЦЕПТОВ</button> */}
         <button onClick={() => navigate('/team', {replace: false})}>О КОМАНДЕ</button>
         {isAuthenticated && (
         <button onClick={() => navigate('/profile', {replace: false})}>АККАУНТ</button>
