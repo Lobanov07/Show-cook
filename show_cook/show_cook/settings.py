@@ -147,3 +147,7 @@ AUTH_USER_MODEL = 'users.User'
 
 
 YOLO_MODEL_PATH = BASE_DIR / 'cv' / 'best.pt'
+
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True

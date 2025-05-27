@@ -29,7 +29,7 @@ export default function Autorize({ active }) {
     try {
   
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/users/login/`,
+        `/users/login/`,
         credentials
       );
       const { token } = response.data; // Предполагается, что сервер возвращает { token: "..." }

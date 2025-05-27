@@ -18,10 +18,7 @@ export default function RegisterForm({ onSwitch }) {
       return;
     }
     try {
-      const endpoint = '/users/register/';
-      const baseUrl = process.env.REACT_APP_API_URL
-      const apiUrl = `${baseUrl.replace(/\/+$/, '')}${endpoint}`;
-      await axios.post(apiUrl, form);
+      await axios.post('/users/register/', form);
       alert("Вы зарегистрированы! Теперь войдите");
       navigate('/login', {replace: false});
     } catch (err) {

@@ -48,14 +48,7 @@ const Scanning = () => {
     const imageFile = imageInputRef.current.files[0];
 
     let fetchOptions;
-
-
-    const endpoint = '/api/recipes-with-prices/';
-    const baseUrl = process.env.REACT_APP_API_URL
-    const apiUrl = `${baseUrl.replace(/\/+$/, '')}${endpoint}`;
-  
-    const url = new URL(apiUrl);
-    url.searchParams.set('page', pageToFetch); // 👈 Query-параметр
+    const apiUrl = `/api/recipes-with-prices/?page=${pageToFetch}`;
 
 
     if (imageFile) {
@@ -95,7 +88,7 @@ const Scanning = () => {
     }
 
     try {
-      const response = await fetch(endpoint, fetchOptions);
+      const response = await fetch(apiUrl, fetchOptions);
       if (!response.ok) {
         setError(`Ошибка сервера: ${response.status} ${response.statusText}`);
         return;
