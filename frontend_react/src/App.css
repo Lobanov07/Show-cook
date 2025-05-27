@@ -1,6 +1,9 @@
 .show-cook body {
   height: 100%;
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 body {
   background: linear-gradient(
@@ -16,7 +19,6 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-around;
   align-items: center;
   gap: 1rem;
 }
@@ -35,7 +37,6 @@ body {
 
 .head_flex{
   display: flex;
-  width: 85%;
   position: fixed;
   flex-direction: row;
   flex-wrap: wrap;
@@ -46,7 +47,7 @@ body {
 }
 
 .style_button {
-  margin-left: 3vh;
+  margin-left: 0%;
   margin-top: 5vh;
   padding: 0.8em 1.6em;
 }

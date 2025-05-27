@@ -1,18 +1,20 @@
 .flexible{
     display: flex;
     flex-direction: column;
-    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
     z-index: -1;
   }
 
 .border-title {
     background: #e2deec;
-    background: rgba(61, 59, 112, 1);
+    background: rgb(92, 90, 160);
     border-radius: 100px;
     width: 900px;
     margin-bottom: 60px;
-    margin-left: 62.5%;
-    margin-top: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10%;
 }
 .recipes-section {
     background-color: #e2deec;
@@ -22,8 +24,9 @@
     text-align: center;
     width: 900px;
     height: 520px;
-    margin-left: 60%;
-    margin-top: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
     overflow-y:scroll;
   }
 

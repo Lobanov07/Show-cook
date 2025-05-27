@@ -1,43 +1,40 @@
 .sidebar {
-  position: fixed; 
-  left: 0;
-  top: 200px;
-  width: 25vw; 
-  height: 70vh;
-  min-width: 300px;
-  max-width: 15rem;
+  position: fixed;
+  inset: 0 0 auto 0;  
+  overflow-x: hidden;
+  flex-wrap: wrap;
+  top: 0;
+  width: 100%; 
+  min-height: 8em;
+  max-height: 10em;
   background: rgba(61, 59, 112, 1);
   color: white;
   display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  box-sizing: border-box;
-  border-top-right-radius: 30px;
-  border-bottom-right-radius: 30px;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+  flex-direction:row;
   justify-content: space-between;
-  z-index: 1000;
+  align-items: center;
   overflow-y:scroll;
-}
-.sidebar::-webkit-scrollbar {
-  transform: none;
-  visibility: hidden;
+  scrollbar-width: none;
+  z-index: 1;
 }
 
 .menu {
   display: flex;
   flex: 1;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 0.5rem;
   justify-content: space-evenly;
   text-align: center;
+  overflow-x:scroll;
+  scrollbar-width: none;
 }
 
 .menu button {
   color: white;
   text-decoration: none;
-  margin: 5vh 0;
-  margin-right: 50px;
-  font-size: 34px;
+  margin: 0;
+  margin-right: 0;
+  font-size: 24px;
   padding: 5px;
   transition: background 0.3s, color 0.3s;
   border-radius: 10px;
@@ -45,7 +42,9 @@
   font-style: 128px;
   background: transparent;
   border: none !important;
-  transform: scale(1.05);
+  min-width: 150px;     /* чтобы не стало слишком маленьким */
+  max-width: 200px;     /* чтобы не растягивалось бесконечно */
+  font-size: 2rem;
 }
 
 .menu button:hover {

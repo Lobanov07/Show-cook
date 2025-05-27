@@ -1,12 +1,10 @@
 .button-container {
     text-align: center;
-    margin-left: 300px;
 }
 
 .scan-button {
     background-color: #8aa9d6;
     color: white;
-    margin-right: 350px;
     border: none;
     padding: 20px 40px;
     font-size: 32px;

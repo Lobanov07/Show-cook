@@ -12,6 +12,7 @@ import { useAuth } from '../Components/AuthContext'
 import AutorButton from '../Components/AutorButton'
 import ProtectedRoute from './ProtectedRoute'
 import NotFound from '../Components/NotFound';
+import AllRecipes from '../Components/AllRecipes'
 
 export default function MyRoutes() {
     const { isAuthenticated } = useAuth();
@@ -20,23 +21,19 @@ export default function MyRoutes() {
     return (
         <>
         <div className="show-cook">
-                <div className='head_flex'>
-                    <Header />
-                {!isAuthenticated && location.pathname !== '/login' && (
-                <AutorButton />)}
-                </div>
-            </div>
         <Routes>
             <Route path="/" element={<Major />} />
             <Route path="login" element={<Autorize />} />
             <Route path="register" element={<RegisterForm />} />
             <Route path="profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="recipes" element={<AllRecipes />} />
             <Route path="edit_profile" element={<ProtectedRoute><EditAccount /></ProtectedRoute>} />
-            <Route path="to_scan" element={<ProtectedRoute><Scanning /></ProtectedRoute>} />
+            <Route path="to_scan" element={<Scanning />} />
             <Route path="features_recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
             <Route path="team" element={<Team />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
     </>
     )
 }

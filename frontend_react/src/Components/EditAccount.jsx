@@ -46,7 +46,7 @@ export default function EditAccount() {
         });
         console.info('EditAccount: Данные профиля:', response.data);
         setLogin(response.data.username || 'USER');
-        setDob(response.data.date_of_birth || '1970-01-01');
+        setDob(response.data.date_of_birth || '');
         setPhone(response.data.phone_number || '');
         setAvatar(response.data.photo || '');
       } catch (err) {

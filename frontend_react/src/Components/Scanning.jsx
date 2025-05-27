@@ -83,6 +83,7 @@ const Scanning = () => {
 
       if (productList.length === 0) {
         setError('Пожалуйста, введите продукты или загрузите фото.');
+        setIsLoading(false);
         return;
       }
 
@@ -138,9 +139,9 @@ const Scanning = () => {
       <h1>Найти рецепты по ингредиентам</h1>
 
       <div className="form-block">
-        <label htmlFor="image">Загрузите изображение:</label>
+        <label >Загрузите изображение:</label>
+        <label htmlFor="image" className={`setphotoforrecipes ${previewUrl ? 'hidden' : ''}`} >ЗАГРУЗИТЬ ФОТО</label> 
         <input
-
             type="file"
             id="image"
             accept="image/*"
@@ -193,11 +194,11 @@ const Scanning = () => {
           Найти рецепты
         </button>
       </div>
-
-      <div className="result">
+      
+      <div className={`result ${results.length === 0 && !isLoading && !error ? 'hidden' : ''}`}>
 
         {isLoading && <Preloader1 />}
-        {error && (<p style={{ color: 'red' }}>{error}</p>)}
+        {error && (<p style={{ color: 'red', textAlign: 'center', fontSize: '20px'}}>{error}</p>)}
         {results.map((item, index) => {
           const { recipe, price, relevance } = item;
           return (
@@ -218,8 +219,8 @@ const Scanning = () => {
         })}
       </div>
 
-      {totalPages && totalPages > 1 && (
-        <div className="pagination" style={{ marginTop: '20px' }}>
+      {totalPages && totalPages > 1 && !isLoading && !error && (
+        <div className="pagination" style={{ marginTop: '25px'}}>
           <button className="button-row" onClick={() => fetchRecipes(page - 1)} disabled={page <= 1}>
             ⮜ Назад
 
