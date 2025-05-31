@@ -12,14 +12,11 @@ export default function Account() {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Получение данных пользователя
+  // Подгружаем данные пользователя при маунте
   useEffect(() => {
-    if (!isAuthenticated || !token) {
-      return;
-    }
+    if (!isAuthenticated || !token) return;
 
     const fetchUserData = async () => {
-      console.info('Account: Запрос данных пользователя, token:', token);
       setIsLoading(true);
       try {
         const response = await axios.get('/users/profile/', {
@@ -28,8 +25,7 @@ export default function Account() {
         setUserData(response.data);
       } catch (err) {
         const errs = err.response?.data;
-        const msg = errs ? JSON.stringify(errs) : 'Не удалось загрузить данные пользователя';
-        alert(msg);
+        alert(errs ? JSON.stringify(errs) : 'Не удалось загрузить данные пользователя');
       } finally {
         setIsLoading(false);
       }
@@ -40,7 +36,7 @@ export default function Account() {
 
   const handleLogout = () => {
     logout();
-    alert('Вы успешно вышли из аккаунта');
+    alert('Вы вышли');
     navigate('/', { replace: true });
   };
 
@@ -48,93 +44,87 @@ export default function Account() {
     return <Navigate to="/login" replace />;
   }
 
-  // Сборка корректного URL для аватарки:
-  // 1) Если userData.photo отсутствует — возвращаем локальный avatar (static).
-  // 2) Если userData.photo начинается с "http://" или "https://", извлекаем pathname,
-  //    чтобы получить относительный путь в формате "/media/…".
-  // 3) Если приходит просто "avatars/123.jpg" (без /media/), добавляем префикс "/media/".
-  // 4) Если уже приходит "/media/avatars/123.jpg", используем как есть.
+  // Составляем правильный src для <img>:
+  // - если userData.photo = null/undefined → показываем локальный avatar
+  // - если приходит полный URL (http:// или https://), берём только pathname ("/media/…")
+  // - если приходит строка без ведущего "/", добавляем "/media/"
+  // - если приходит "/media/…", оставляем как есть
   const getPhotoUrl = () => {
-    if (!userData?.photo) {
+    const raw = userData?.photo?.trim();
+    if (!raw) {
       return avatar;
     }
 
-    const raw = userData.photo.trim();
-
-    // Если полный URL (http:// или https://), берём только pathname
+    // Если полный URL, разбираем через конструктор URL и берём только pathname:
     if (raw.startsWith('http://') || raw.startsWith('https://')) {
       try {
+        // Например raw = "http://show-cook.sytes.net/media/profile_photos/abc.jpg"
         const url = new URL(raw);
-        // Вернёт, например, "/media/profile_photos/abc123.jpg"
-        return url.pathname;
+        return url.pathname; // отбрасываем схему и хост, получаем "/media/…"
       } catch (_) {
-        // Если по какой-то причине URL не парсится, fallback к локальному avatar
         return avatar;
       }
     }
 
-    // Если приходит относительный путь без ведущего слэша
+    // Если строка без косого слэша в начале (e.g. "avatars/123.jpg"), делаем "/media/avatars/123.jpg"
     if (!raw.startsWith('/')) {
-      // Если пропущен просто "avatars/123.jpg", считаем: "/media/" + raw
       return `/media/${raw.replace(/^\/+/, '')}`;
     }
 
-    // Если уже с ведущим слэшем: может быть "/media/..." или "/avatars/...".
-    // Если начинается с "/media/", оставляем как есть.
+    // Если начинается с "/media/", оставляем как есть:
     if (raw.startsWith('/media/')) {
       return raw;
     }
 
-    // Если, например, "/avatars/123.jpg" (не по MEDIA_URL), тоже добавляем /media/ спереди:
+    // Если, например, "/avatars/123.jpg" (без media/), тоже переведём в "/media/...":
     return `/media/${raw.replace(/^\/+/, '')}`;
   };
 
   return (
-    <>
-      <div className='show-cook'>
-        <div className='flexible_show'>
-          <Main_menu />
-        </div>
-        <div className="user-profile">
-          <div className="avatar-section">
-            <div className='avatar'>
-              <img
-                className="photo"
-                src={getPhotoUrl()}
-                alt="Avatar"
-              />
-            </div>
-            <p className="username">{userData?.username}</p>
-          </div>
+    <div className='show-cook'>
+      <div className='flexible_show'>
+        <Main_menu />
+      </div>
 
-          <div className="info-section">
-            <p className="info-item">
-              Email: <span>{userData?.email || '-'}</span>
-            </p>
-            <p className="info-item">
-              Дата рождения: <span>{userData?.date_of_birth || '-'}</span>
-            </p>
-            <p className="info-item">
-              Номер телефона: <span>{userData?.phone_number || '-'}</span>
-            </p>
-            <button
-              className="features_recipes"
-              onClick={() => navigate('/features_recipes', { replace: false })}
-            >
-              ИЗБРАННЫЕ РЕЦЕПТЫ
-            </button>
-            <button
-              className="edit-button"
-              onClick={() => navigate('/edit_profile', { replace: false })}
-            >
-              ИЗМЕНИТЬ ИНФОРМАЦИЮ
-            </button>
-            <button className="logout-button" onClick={handleLogout}>
-              ВЫЙТИ
-            </button>
+      <div className="user-profile">
+        <div className="avatar-section">
+          <div className='avatar'>
+            <img
+              className="photo"
+              src={getPhotoUrl()}
+              alt="Avatar"
+            />
           </div>
+          <p className="username">{userData?.username}</p>
+        </div>
+
+        <div className="info-section">
+          <p className="info-item">
+            Email: <span>{userData?.email || '-'}</span>
+          </p>
+          <p className="info-item">
+            Дата рождения: <span>{userData?.date_of_birth || '-'}</span>
+          </p>
+          <p className="info-item">
+            Номер телефона: <span>{userData?.phone_number || '-'}</span>
+          </p>
+          <button
+            className="features_recipes"
+            onClick={() => navigate('/features_recipes')}
+          >
+            ИЗБРАННЫЕ РЕЦЕПТЫ
+          </button>
+          <button
+            className="edit-button"
+            onClick={() => navigate('/edit_profile')}
+          >
+            ИЗМЕНИТЬ ИНФОРМАЦИЮ
+          </button>
+          <button className="logout-button" onClick={handleLogout}>
+            ВЫЙТИ
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
