@@ -22,7 +22,7 @@ export default function Account() {
       console.info('Account: Запрос данных пользователя, token:', token);
       setIsLoading(true);
       try {
-        const response = await axios.get(`/users/profile/`, {
+        const response = await axios.get('/users/profile/', {
           headers: { Authorization: `Token ${token}` },
         });
         setUserData(response.data);
@@ -48,17 +48,45 @@ export default function Account() {
     return <Navigate to="/login" replace />;
   }
 
-  // Формируем корректный URL аватарки с учётом nginx: /media/…
+  // Сборка корректного URL для аватарки:
+  // 1) Если userData.photo отсутствует — возвращаем локальный avatar (static).
+  // 2) Если userData.photo начинается с "http://" или "https://", извлекаем pathname,
+  //    чтобы получить относительный путь в формате "/media/…".
+  // 3) Если приходит просто "avatars/123.jpg" (без /media/), добавляем префикс "/media/".
+  // 4) Если уже приходит "/media/avatars/123.jpg", используем как есть.
   const getPhotoUrl = () => {
     if (!userData?.photo) {
       return avatar;
     }
-    // Если возвращается уже полный путь начинающийся с /media/, используем как есть
-    if (userData.photo.startsWith('/media/')) {
-      return userData.photo;
+
+    const raw = userData.photo.trim();
+
+    // Если полный URL (http:// или https://), берём только pathname
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      try {
+        const url = new URL(raw);
+        // Вернёт, например, "/media/profile_photos/abc123.jpg"
+        return url.pathname;
+      } catch (_) {
+        // Если по какой-то причине URL не парсится, fallback к локальному avatar
+        return avatar;
+      }
     }
-    // Иначе добавляем префикс /media/ и убираем возможный ведущий слэш
-    return `/media/${userData.photo.replace(/^\/+/, '')}`;
+
+    // Если приходит относительный путь без ведущего слэша
+    if (!raw.startsWith('/')) {
+      // Если пропущен просто "avatars/123.jpg", считаем: "/media/" + raw
+      return `/media/${raw.replace(/^\/+/, '')}`;
+    }
+
+    // Если уже с ведущим слэшем: может быть "/media/..." или "/avatars/...".
+    // Если начинается с "/media/", оставляем как есть.
+    if (raw.startsWith('/media/')) {
+      return raw;
+    }
+
+    // Если, например, "/avatars/123.jpg" (не по MEDIA_URL), тоже добавляем /media/ спереди:
+    return `/media/${raw.replace(/^\/+/, '')}`;
   };
 
   return (
