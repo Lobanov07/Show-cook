@@ -8,17 +8,17 @@ export default function Team (){
     const teamMembers = [
         {
           name: "Марк Соколов",
-          description: "Хороший человек",
+          description: "CV-Engineer",
           image: Mark, 
         },
         {
           name: "Константин Лобанов",
-          description: "Хороший человек",
+          description: "Dev-Ops, Backend",
           image: Kostya
         },
         {
           name: "Артём Ледовских",
-          description: "Хор0ший человек",
+          description: "Frontend",
           image: Tema
         },
       ];

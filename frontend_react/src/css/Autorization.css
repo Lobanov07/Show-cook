@@ -6,6 +6,7 @@
   }
   
   .login-container {
+    margin-top: 10%;
     background-color: white;
     padding: 32px;
     width: 720px;
@@ -72,8 +73,10 @@
   
   .register button {
     font-size: 12px;
-    color: gray;
+    border-radius: 50px;
     text-decoration: none;
+    cursor: pointer;
+    font-family: 'MainFont' ;
   }
   
 
@@ -90,6 +93,8 @@
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'MainFont';
+    font-size: 24px;
   }
   
   .login-button:hover {

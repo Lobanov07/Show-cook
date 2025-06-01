@@ -151,3 +151,6 @@ YOLO_MODEL_PATH = BASE_DIR / 'cv' / 'best.pt'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+CSRF_TRUSTED_ORIGINS = ['https://show-cook.sytes.net/admin/login/?next=/admin/', 
+                        'https://show-cook.sytes.net/admin/']

@@ -2,31 +2,32 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth.password_validation import validate_password
 import base64
-
 from django.core.files.base import ContentFile
+from django.conf import settings
 
 
 class Base64ImageField(serializers.ImageField):
-    """Кастомное поле для кодирования изображения в base64."""
-
     def to_internal_value(self, data):
-        """Метод преобразования картинки."""
         if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
+            fmt, imgstr = data.split(';base64,')
+            ext = fmt.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
-
         return super().to_internal_value(data)
 
 
 class UserSerializer(serializers.ModelSerializer):
-    photo = Base64ImageField(
-        max_length=None, use_url=True,
-    )
+    # Прием Base64-картинки или стандартная загрузка файла
+    photo = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'photo', 'date_of_birth', 'phone_number']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.photo:
+            data['photo'] = instance.photo.url  # вернёт "/media/папка/файл.jpg"
+        return data
 
 
 class RegisterSerializer(serializers.ModelSerializer):
